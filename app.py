@@ -20,21 +20,22 @@ DEFAULT_SYMBOLS = [
 ]
 
 # ===== FIRE EMOJI LOGIC =====
-def fire_display_multi(score: int) -> str:
-    """Return fire emoji HTML with glow/shadow effect and size based on rating"""
+def fire_display(score: int) -> str:
+    """Return professional glowing fire emoji, size based on score"""
     if score <= 0:
         return ""
     score = min(score,5)
-    size_map = {1:16, 2:18, 3:22, 4:26, 5:32}
-    size = size_map.get(score,18)
-    # Create a glowing, layered text-shadow effect for pop
-    shadow_intensity = score * 2
+    size_map = {1:16, 2:20, 3:24, 4:28, 5:34}
+    size = size_map[score]
+    # glowing layered text-shadow effect
     return f'''
     <span style="
-        color: #ff3300;
+        color:#ff3300;
         font-size:{size}px;
         font-weight:bold;
-        text-shadow: 0 0 {shadow_intensity}px #ff6600, 0 0 {shadow_intensity*2}px #ff9933, 0 0 {shadow_intensity*3}px #ffcc66;
+        text-shadow: 0 0 {score*2}px #ff6600,
+                     0 0 {score*4}px #ff9933,
+                     0 0 {score*6}px #ffcc66;
         ">
         {"🔥"*score}
     </span>
@@ -80,17 +81,24 @@ def get_fake_stock_data(symbols, seed):
     df = pd.DataFrame([generate_fake_for_symbol(s, seed) for s in symbols[:TOP_N]])
     return df
 
-# ===== SOUND FUNCTION =====
-def play_chime():
-    chime_url = "https://actions.google.com/sounds/v1/cash/coin_tap.ogg"
-    st.audio(chime_url)
+# ===== CHIME FUNCTION =====
+def play_chime_html():
+    st.markdown("""
+    <audio autoplay>
+        <source src="https://actions.google.com/sounds/v1/cash/coin_tap.ogg" type="audio/ogg">
+    </audio>
+    """, unsafe_allow_html=True)
 
 # ===== MAIN DASHBOARD =====
 st.title("🔥 Day Trading Scanner - Watchlist UP10%")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s")
 
 # Toggle for chime
-chime_toggle = st.checkbox("🔔 Play chime for new watchlist entries", value=False)
+if 'alerts_enabled' not in st.session_state:
+    st.session_state.alerts_enabled = False
+
+if st.button("🔔 Enable Watchlist Chimes"):
+    st.session_state.alerts_enabled = True
 
 # Generate Data
 df = get_fake_stock_data(DEFAULT_SYMBOLS, count)
@@ -110,16 +118,16 @@ watchlist_df = df[
 
 # Play chime if new stock enters watchlist
 current_symbols = watchlist_df['Symbol'].tolist()
-if chime_toggle:
+if st.session_state.alerts_enabled:
     for sym in current_symbols:
         if sym not in st.session_state.prev_watchlist_symbols:
-            play_chime()
+            play_chime_html()
             break
 st.session_state.prev_watchlist_symbols = current_symbols
 
 # ===== WATCHLIST BOX =====
 st.markdown('<div style="background-color:#1a1a1a; padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
-st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Top 5 UP10% Stocks Meeting Criteria</h4>', unsafe_allow_html=True)
+st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Top 5 UP10% Stocks</h4>', unsafe_allow_html=True)
 
 # Column headers
 st.markdown("""
@@ -139,7 +147,7 @@ st.markdown("""
 # Display watchlist rows
 for idx, row in watchlist_df.iterrows():
     color = change_pct_color(row['Change %'])
-    fire_html = fire_display_multi(row['🔥 News Score'])
+    fire_html = fire_display(row['🔥 News Score'])
     up10 = "🔺" if row['Change %']>=10 else ""
     st.markdown(f"""
     <div style="display:flex; flex-direction:row; align-items:center; background-color:#2a2a2a; border-radius:8px; padding:6px; margin-bottom:3px;">
@@ -156,14 +164,14 @@ for idx, row in watchlist_df.iterrows():
     """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ===== COLUMN HEADERS FOR MAIN TABLE =====
+# ===== MAIN TABLE =====
 st.markdown("""
 <div style="display:flex; flex-direction:row; align-items:center; background-color:#2f2f2f; border-radius:10px; padding:8px; margin-bottom:2px;">
     <div style="width:5%; font-weight:bold; color:#ffffff;">UP 10%</div>
     <div style="width:5%; font-weight:bold; color:#ffffff;">#</div>
     <div style="width:12%; font-weight:bold; color:#00ffff;">Change %</div>
     <div style="width:10%; font-weight:bold; color:#ffffff;">Symbol</div>
-    <div style="width:15%; font-weight:bold; color:#ff9900;">🔥 News</div>
+    <div style="width:15%; font-weight:bold; color:#ff3300;">🔥 News</div>
     <div style="width:10%; font-weight:bold; color:#00ffff;">Price</div>
     <div style="width:12%; font-weight:bold; color:#ffcc00;">Volume</div>
     <div style="width:12%; font-weight:bold; color:#ff99ff;">Float</div>
@@ -171,11 +179,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ===== DISPLAY TOP 20 =====
+# Display top 20
 for idx, row in df_sorted.iterrows():
     color = change_pct_color(row['Change %'])
     bg_color = "#2a2a2a" if idx%2==0 else "#1f1f1f"
-    fire_html = fire_display_multi(row['🔥 News Score'])
+    fire_html = fire_display(row['🔥 News Score'])
     up10 = "🔺" if row['Change %']>=10 else ""
     st.markdown(f"""
     <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:10px; padding:8px; margin-bottom:3px;">
