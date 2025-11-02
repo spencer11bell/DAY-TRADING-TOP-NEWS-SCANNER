@@ -3,8 +3,6 @@ import pandas as pd
 import random
 import time
 from streamlit_autorefresh import st_autorefresh
-from io import BytesIO
-import base64
 
 # ===== CONFIG =====
 st.set_page_config(page_title="🔥 Day Trading Scanner - Watchlist UP10%", layout="wide")
@@ -22,48 +20,16 @@ DEFAULT_SYMBOLS = [
 ]
 
 # ===== FIRE EMOJI LOGIC =====
-def fire_display_multi(score: int, is_top_mover=False) -> str:
+def fire_display_multi(score: int) -> str:
     if score <= 0:
         return ""
     score = min(score,5)
-    color = "red" if score >=4 else "orange" if score>=2 else "yellow"
-    if is_top_mover:
-        return f'''
-        <span style="
-            color:{color};
-            text-shadow: 0 0 {score*5}px {color},0 0 {score*10}px {color};
-            font-size:28px;
-            font-weight:bold;">
-            {'🔥'*score}
-        </span>
-        '''
-    else:
-        if score == 5:
-            animation = "big-bounce"
-        elif score == 4:
-            animation = "small-bounce"
-        else:
-            animation = "pulse"
-        return f'''
-        <span class="{animation}" style="
-            color:{color};
-            text-shadow:0 0 {score*2}px {color};
-            font-size:18px;">
-            {'🔥'*score}
-        </span>
-        '''
-
-# ===== CSS Animations =====
-st.markdown("""
-<style>
-@keyframes pulse {0% {transform: scale(1);}50% {transform: scale(1.2);}100% {transform: scale(1);}}
-@keyframes small-bounce {0%,100%{transform: translateY(0);}50%{transform: translateY(-5px);}}
-@keyframes big-bounce {0%,100%{transform: translateY(0);}50%{transform: translateY(-15px);}}
-.pulse {animation: pulse 1.2s infinite alternate;}
-.small-bounce {animation: small-bounce 0.8s infinite;}
-.big-bounce {animation: big-bounce 0.6s infinite;}
-</style>
-""", unsafe_allow_html=True)
+    # same color for all fires
+    color = "red"
+    # size based on score
+    size_map = {1:14, 2:16, 3:18, 4:22, 5:28}
+    size = size_map.get(score,18)
+    return f'<span style="color:{color}; font-size:{size}px; font-weight:bold;">{"🔥"*score}</span>'
 
 # ===== COLOR LOGIC =====
 def change_pct_color(change):
@@ -200,8 +166,7 @@ st.markdown("""
 for idx, row in df_sorted.iterrows():
     color = change_pct_color(row['Change %'])
     bg_color = "#2a2a2a" if idx%2==0 else "#1f1f1f"
-    is_top_mover = idx<3
-    fire_html = fire_display_multi(row['🔥 News Score'], is_top_mover)
+    fire_html = fire_display_multi(row['🔥 News Score'])
     up10 = "🔺" if row['Change %']>=10 else ""
     st.markdown(f"""
     <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:10px; padding:8px; margin-bottom:3px;">
