@@ -5,7 +5,7 @@ import time
 from streamlit_autorefresh import st_autorefresh
 
 # ===== CONFIG =====
-st.set_page_config(page_title="🔥 Day Trading Scanner - Watchlist + UP10%", layout="wide")
+st.set_page_config(page_title="🔥 Day Trading Scanner - Watchlist UP10%", layout="wide")
 
 PRICE_MIN = 2
 PRICE_MAX = 20
@@ -104,7 +104,7 @@ def get_fake_stock_data(symbols, seed):
     return df
 
 # ===== MAIN DASHBOARD =====
-st.title("🔥 Day Trading Scanner - Watchlist + UP 10%")
+st.title("🔥 Day Trading Scanner - Watchlist UP10%")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s")
 
 # Generate Data
@@ -113,6 +113,7 @@ df_sorted = df.sort_values(by="Change %", ascending=False).reset_index(drop=True
 
 # ===== WATCHLIST BOX =====
 watchlist_df = df[
+    (df['Change %']>=10) &
     (df['Price'].between(PRICE_MIN,PRICE_MAX)) &
     (df['🔥 News Score']>=4) &
     (df['Volume'] >= 5*df['AvgVol']) &
@@ -120,7 +121,7 @@ watchlist_df = df[
 ].sort_values(by="🔥 News Score", ascending=False).head(WATCHLIST_TOP_N)
 
 st.markdown('<div style="background-color:#111111; padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
-st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Top 5 Stocks Meeting Criteria</h4>', unsafe_allow_html=True)
+st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Top 5 UP10% Stocks Meeting Criteria</h4>', unsafe_allow_html=True)
 for idx, row in watchlist_df.iterrows():
     fire_html = fire_display_multi(row['🔥 News Score'])
     st.markdown(f'''
