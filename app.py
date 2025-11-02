@@ -3,7 +3,6 @@ import pandas as pd
 import random
 import time
 from streamlit_autorefresh import st_autorefresh
-import base64
 
 # ===== CONFIG =====
 st.set_page_config(page_title="Day Trading Scanner - Watchlist UP10%", layout="wide")
@@ -20,22 +19,13 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-# ===== EMBED YOUR PNG BASE64 =====
-DIAMOND_BASE64 = "<PASTE-YOUR-UPLOADED-PNG-BASE64-HERE>"
-
-# ===== OPTIONAL UPLOAD PNG (Overrides default) =====
-uploaded_file = st.sidebar.file_uploader("Upload PNG to replace default", type=["png"])
-if uploaded_file:
-    DIAMOND_BASE64 = base64.b64encode(uploaded_file.read()).decode()
-
-# ===== IMAGE LOGIC =====
-def diamond_display_image(score: int) -> str:
-    if not DIAMOND_BASE64 or score <= 0:
+# ===== STAR DISPLAY LOGIC =====
+def star_display(score: int) -> str:
+    """Return HTML stars with fixed font size for uniform row height"""
+    if score <= 0:
         return ""
     score = min(score, 5)
-    size_map = {1: 20, 2: 28, 3: 36, 4: 44, 5: 56}
-    size = size_map[score]
-    return f'<img src="data:image/png;base64,{DIAMOND_BASE64}" width="{size}" style="margin-right:2px;">' * score
+    return f'<span style="font-size:20px; color:#FFD700;">{"⭐" * score}</span>'
 
 # ===== COLOR LOGIC =====
 def change_pct_color(change):
@@ -59,7 +49,7 @@ def generate_fake_for_symbol(sym, seed):
     avg_vol = int(r.uniform(10000,5000000))
     volume = int(avg_vol * r.uniform(1,15))
     float_shares = int(r.uniform(500_000,FLOAT_MAX))
-    diamond_score = r.randint(1,5)
+    news_score = r.randint(1,5)
     headline_prefix = "BREAKING: " if r.random()<0.25 else ""
     headline = f"{headline_prefix}{sym} {r.choice(['announces','reports','launches','files'])} {r.choice(['earnings','partnership','product'])}"
     return {
@@ -70,7 +60,7 @@ def generate_fake_for_symbol(sym, seed):
         "AvgVol": avg_vol,
         "Float": float_shares,
         "Headline": headline,
-        "💎 News Score": diamond_score
+        "News Score": news_score
     }
 
 def get_fake_stock_data(symbols, seed):
@@ -117,10 +107,10 @@ if 'prev_watchlist_symbols' not in st.session_state:
 watchlist_df = df[
     (df['Change %']>=10) &
     (df['Price'].between(PRICE_MIN,PRICE_MAX)) &
-    (df['💎 News Score']>=4) &
+    (df['News Score']>=4) &
     (df['Volume'] >= 5*df['AvgVol']) &
     (df['Float']<FLOAT_MAX)
-].sort_values(by="💎 News Score", ascending=False).head(WATCHLIST_TOP_N)
+].sort_values(by="News Score", ascending=False).head(WATCHLIST_TOP_N)
 
 # Play chime if new stock enters watchlist
 current_symbols = watchlist_df['Symbol'].tolist()
@@ -153,7 +143,7 @@ st.markdown("""
 # Display rows
 for idx, row in watchlist_df.iterrows():
     color = change_pct_color(row['Change %'])
-    diamond_html = diamond_display_image(row['💎 News Score'])
+    stars_html = star_display(row['News Score'])
     up10 = f"🔺 {row['Change %']}%" if row['Change %']>=10 else ""
     symbol_id = f"symbol-{idx}"
     st.markdown(f"""
@@ -166,7 +156,7 @@ for idx, row in watchlist_df.iterrows():
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
         <div style="width:12%; font-weight:bold; color:#ff99ff;">{row['Float']}</div>
         <div style="width:24%; font-weight:bold; color:#ffffff;">{row['Headline']}</div>
-        <div style="width:15%; font-weight:bold;">{diamond_html}</div>
+        <div style="width:15%; font-weight:bold;">{stars_html}</div>
     </div>
     """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
@@ -182,7 +172,7 @@ st.markdown("""
     <div style="width:12%; font-weight:bold; color:#ffcc00;">Volume</div>
     <div style="width:12%; font-weight:bold; color:#ff99ff;">Float</div>
     <div style="width:24%; font-weight:bold; color:#ffffff;">Headline</div>
-    <div style="width:15%; font-weight:bold; color:#ff33ff;">News</div>
+    <div style="width:15%; font-weight:bold; color:#FFD700;">News</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -190,7 +180,7 @@ st.markdown("""
 for idx, row in df_sorted.iterrows():
     color = change_pct_color(row['Change %'])
     bg_color = "#2a2a2a" if idx % 2 == 0 else "#1f1f1f"
-    diamond_html = diamond_display_image(row['💎 News Score'])
+    stars_html = star_display(row['News Score'])
     up10 = f"🔺 {row['Change %']}%" if row['Change %'] >= 10 else ""
     symbol_id = f"symbol-main-{idx}"
     st.markdown(f"""
@@ -203,7 +193,7 @@ for idx, row in df_sorted.iterrows():
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
         <div style="width:12%; font-weight:bold; color:#ff99ff;">{row['Float']}</div>
         <div style="width:24%; font-weight:bold; color:#ffffff;">{row['Headline']}</div>
-        <div style="width:15%; font-weight:bold;">{diamond_html}</div>
+        <div style="width:15%; font-weight:bold;">{stars_html}</div>
     </div>
     """, unsafe_allow_html=True)
 
