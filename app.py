@@ -65,12 +65,12 @@ def generate_fake_for_symbol(sym, seed):
     return {
         "Change %": change_pct,
         "Symbol": sym,
-        "💎 News Score": diamond_score,
         "Price": price,
         "Volume": volume,
         "AvgVol": avg_vol,
         "Float": float_shares,
-        "Headline": headline
+        "Headline": headline,
+        "💎 News Score": diamond_score
     }
 
 def get_fake_stock_data(symbols, seed):
@@ -142,11 +142,11 @@ st.markdown("""
     <div style="width:5%;">#</div>
     <div style="width:12%;">Change %</div>
     <div style="width:10%;">Symbol</div>
-    <div style="width:15%;">News</div>
     <div style="width:10%;">Price</div>
     <div style="width:12%;">Volume</div>
     <div style="width:12%;">Float</div>
     <div style="width:24%;">Headline</div>
+    <div style="width:15%;">News</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -162,11 +162,11 @@ for idx, row in watchlist_df.iterrows():
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
         <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
         <div style="width:10%; font-weight:bold; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']} <span id='{symbol_id}' style='color:#00ff00; font-weight:bold; display:none;'>COPIED</span></div>
-        <div style="width:15%; font-weight:bold;">{diamond_html}</div>
         <div style="width:10%; font-weight:bold; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
         <div style="width:12%; font-weight:bold; color:#ff99ff;">{row['Float']}</div>
         <div style="width:24%; font-weight:bold; color:#ffffff;">{row['Headline']}</div>
+        <div style="width:15%; font-weight:bold;">{diamond_html}</div>
     </div>
     """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
@@ -178,11 +178,11 @@ st.markdown("""
     <div style="width:5%; font-weight:bold; color:#ffffff;">#</div>
     <div style="width:12%; font-weight:bold; color:#00ffff;">Change %</div>
     <div style="width:10%; font-weight:bold; color:#ffffff;">Symbol</div>
-    <div style="width:15%; font-weight:bold; color:#ff33ff;">News</div>
     <div style="width:10%; font-weight:bold; color:#00ffff;">Price</div>
     <div style="width:12%; font-weight:bold; color:#ffcc00;">Volume</div>
     <div style="width:12%; font-weight:bold; color:#ff99ff;">Float</div>
     <div style="width:24%; font-weight:bold; color:#ffffff;">Headline</div>
+    <div style="width:15%; font-weight:bold; color:#ff33ff;">News</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -199,11 +199,11 @@ for idx, row in df_sorted.iterrows():
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
         <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
         <div style="width:10%; font-weight:bold; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']} <span id='{symbol_id}' style='color:#00ff00; font-weight:bold; display:none;'>COPIED</span></div>
-        <div style="width:15%; font-weight:bold;">{diamond_html}</div>
         <div style="width:10%; font-weight:bold; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
         <div style="width:12%; font-weight:bold; color:#ff99ff;">{row['Float']}</div>
         <div style="width:24%; font-weight:bold; color:#ffffff;">{row['Headline']}</div>
+        <div style="width:15%; font-weight:bold;">{diamond_html}</div>
     </div>
     """, unsafe_allow_html=True)
 
