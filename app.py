@@ -24,15 +24,6 @@ def star_display(score: int) -> str:
     score = min(max(score, 0), 5)
     return f'<span style="font-size:20px; color:#FFD700;">{"⭐" * score}</span>'
 
-# ===== COLOR LOGIC =====
-def change_pct_color(change):
-    if change > 5:
-        return "#00ff00"
-    elif 1 <= change <= 4:
-        return "#ffff00"
-    else:
-        return "#ff4d4d"
-
 # ===== AUTO REFRESH =====
 count = st_autorefresh(interval=REFRESH_SECONDS*1000, limit=None, key="autorefresh")
 
@@ -117,12 +108,12 @@ if st.session_state.alerts_enabled:
 st.session_state.prev_watchlist_symbols = current_symbols
 
 # ===== WATCHLIST DISPLAY =====
-st.markdown('<div style="background-color:#1a1a1a; padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
+st.markdown('<div style="background-color:#2a2a3a; padding:12px; border-radius:12px; margin-bottom:20px;">', unsafe_allow_html=True)
 st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Strict UP10% Rules</h4>', unsafe_allow_html=True)
 
 # Watchlist headers
 st.markdown("""
-<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:4px; margin-bottom:2px;">
+<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; border-bottom:1px solid #00ffff;">
     <div style="width:5%;">UP10%</div>
     <div style="width:5%;">#</div>
     <div style="width:10%;">Symbol</div>
@@ -140,7 +131,7 @@ for idx, row in watchlist_df.iterrows():
     symbol_id = f"watchlist-{idx}"
     stars_html = star_display(row['News Score'])
     st.markdown(f"""
-    <div style="display:flex; flex-direction:row; align-items:center; background-color:#2a2a2a; border-radius:8px; padding:6px; margin-bottom:3px;">
+    <div style="display:flex; flex-direction:row; align-items:center; background-color:#3a3a5a; border-radius:6px; padding:6px; margin-bottom:4px;">
         <div style="width:5%; font-weight:bold; color:#00ff00;">{up10}</div>
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
         <div style="width:10%; font-weight:bold; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']} <span id='{symbol_id}' style='color:#00ff00; font-weight:bold; display:none;'>COPIED</span></div>
@@ -153,15 +144,15 @@ for idx, row in watchlist_df.iterrows():
     """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ===== DIVIDER BETWEEN WATCHLIST AND MAIN SCANNER =====
-st.markdown("<hr style='border:1px solid #00ffff; margin:20px 0;'>", unsafe_allow_html=True)
+# ===== DIVIDER BETWEEN WATCHLIST AND SCANNER =====
+st.markdown("<hr style='border:2px solid #00ffff; margin:20px 0;'>", unsafe_allow_html=True)
 
 # ===== MAIN SCANNER TABLE =====
 st.markdown('<h4 style="color:#ff9900;">📊 Scanner - Top 20 Stocks</h4>', unsafe_allow_html=True)
 
 # Scanner headers
 st.markdown("""
-<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:4px; margin-bottom:2px;">
+<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; border-bottom:1px solid #ff9900;">
     <div style="width:5%;">UP10%</div>
     <div style="width:5%;">#</div>
     <div style="width:10%;">Symbol</div>
@@ -180,7 +171,7 @@ for idx, row in df_sorted.iterrows():
     stars_html = star_display(row['News Score'])
     bg_color = "#2a2a2a" if idx % 2 == 0 else "#1f1f1f"
     st.markdown(f"""
-    <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:8px; padding:6px; margin-bottom:3px;">
+    <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:6px; padding:6px; margin-bottom:4px;">
         <div style="width:5%; font-weight:bold; color:#00ff00;">{up10}</div>
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
         <div style="width:10%; font-weight:bold; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']} <span id='{symbol_id}' style='color:#00ff00; font-weight:bold; display:none;'>COPIED</span></div>
