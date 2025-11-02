@@ -2,11 +2,10 @@ import streamlit as st
 import pandas as pd
 import random
 import time
-import base64
 from streamlit_autorefresh import st_autorefresh
 
 # ===== CONFIG =====
-st.set_page_config(page_title="🔥 Day Trading Scanner - Watchlist UP10%", layout="wide")
+st.set_page_config(page_title="💎 Day Trading Scanner - Watchlist UP10%", layout="wide")
 
 PRICE_MIN = 2
 PRICE_MAX = 20
@@ -20,24 +19,16 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-FIRE_IMG_PATH = "/mnt/data/b31e03c2-9014-4405-9ca0-f3aa3d660a07.png"
-
-# ===== FIRE IMAGE LOGIC =====
-def fire_display_image(score: int) -> str:
-    """Return HTML with fire image, size proportional to score"""
+# ===== DIAMOND EMOJI LOGIC =====
+def diamond_display_emoji(score: int) -> str:
+    """Return repeated diamond emoji scaled by score"""
     if score <= 0:
         return ""
     score = min(score, 5)
-    size_map = {1: 20, 2: 28, 3: 36, 4: 44, 5: 56}
+    # Optionally vary emoji size using HTML <span> font-size
+    size_map = {1: '18px', 2: '22px', 3: '28px', 4: '34px', 5: '42px'}
     size = size_map[score]
-
-    # Encode image in base64
-    with open(FIRE_IMG_PATH, "rb") as f:
-        img_bytes = f.read()
-    img_base64 = base64.b64encode(img_bytes).decode()
-
-    img_tag = f'<img src="data:image/png;base64,{img_base64}" width="{size}" style="margin-right:2px;">'
-    return img_tag * score
+    return f'<span style="font-size:{size}; margin-right:2px;">💎</span>' * score
 
 # ===== COLOR LOGIC =====
 def change_pct_color(change):
@@ -61,13 +52,13 @@ def generate_fake_for_symbol(sym, seed):
     avg_vol = int(r.uniform(10000,5000000))
     volume = int(avg_vol * r.uniform(1,15))
     float_shares = int(r.uniform(500_000,FLOAT_MAX))
-    fire_score = r.randint(1,5)
+    diamond_score = r.randint(1,5)
     headline_prefix = "BREAKING: " if r.random()<0.25 else ""
     headline = f"{headline_prefix}{sym} {r.choice(['announces','reports','launches','files'])} {r.choice(['earnings','partnership','product'])}"
     return {
         "Change %": change_pct,
         "Symbol": sym,
-        "🔥 News Score": fire_score,
+        "💎 News Score": diamond_score,
         "Price": price,
         "Volume": volume,
         "AvgVol": avg_vol,
@@ -101,7 +92,7 @@ function copySymbol(symbol, id){
 st.markdown(COPY_JS, unsafe_allow_html=True)
 
 # ===== MAIN DASHBOARD =====
-st.title("🔥 Day Trading Scanner - Watchlist UP10%")
+st.title("💎 Day Trading Scanner - Watchlist UP10%")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s")
 
 # Toggle for chime
@@ -121,10 +112,10 @@ if 'prev_watchlist_symbols' not in st.session_state:
 watchlist_df = df[
     (df['Change %']>=10) &
     (df['Price'].between(PRICE_MIN,PRICE_MAX)) &
-    (df['🔥 News Score']>=4) &
+    (df['💎 News Score']>=4) &
     (df['Volume'] >= 5*df['AvgVol']) &
     (df['Float']<FLOAT_MAX)
-].sort_values(by="🔥 News Score", ascending=False).head(WATCHLIST_TOP_N)
+].sort_values(by="💎 News Score", ascending=False).head(WATCHLIST_TOP_N)
 
 # Play chime if new stock enters watchlist
 current_symbols = watchlist_df['Symbol'].tolist()
@@ -146,7 +137,7 @@ st.markdown("""
     <div style="width:5%;">#</div>
     <div style="width:12%;">Change %</div>
     <div style="width:10%;">Symbol</div>
-    <div style="width:15%;">🔥 News</div>
+    <div style="width:15%;">💎 News</div>
     <div style="width:10%;">Price</div>
     <div style="width:12%;">Volume</div>
     <div style="width:12%;">Float</div>
@@ -154,10 +145,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display watchlist rows with clickable symbols and fire image
+# Display watchlist rows with clickable symbols and diamond emoji
 for idx, row in watchlist_df.iterrows():
     color = change_pct_color(row['Change %'])
-    fire_html = fire_display_image(row['🔥 News Score'])
+    diamond_html = diamond_display_emoji(row['💎 News Score'])
     up10 = f"🔺 {row['Change %']}%" if row['Change %']>=10 else ""
     symbol_id = f"symbol-{idx}"
     st.markdown(f"""
@@ -166,7 +157,7 @@ for idx, row in watchlist_df.iterrows():
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
         <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
         <div style="width:10%; font-weight:bold; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']} <span id='{symbol_id}' style='color:#00ff00; font-weight:bold; display:none;'>COPIED</span></div>
-        <div style="width:15%; font-weight:bold;">{fire_html}</div>
+        <div style="width:15%; font-weight:bold;">{diamond_html}</div>
         <div style="width:10%; font-weight:bold; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
         <div style="width:12%; font-weight:bold; color:#ff99ff;">{row['Float']}</div>
@@ -182,7 +173,7 @@ st.markdown("""
     <div style="width:5%; font-weight:bold; color:#ffffff;">#</div>
     <div style="width:12%; font-weight:bold; color:#00ffff;">Change %</div>
     <div style="width:10%; font-weight:bold; color:#ffffff;">Symbol</div>
-    <div style="width:15%; font-weight:bold; color:#ff3300;">🔥 News</div>
+    <div style="width:15%; font-weight:bold; color:#ff33ff;">💎 News</div>
     <div style="width:10%; font-weight:bold; color:#00ffff;">Price</div>
     <div style="width:12%; font-weight:bold; color:#ffcc00;">Volume</div>
     <div style="width:12%; font-weight:bold; color:#ff99ff;">Float</div>
@@ -190,12 +181,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display top 20 main table with fire image
+# Display top 20 main table with diamond emoji
 for idx, row in df_sorted.iterrows():
     color = change_pct_color(row['Change %'])
-    bg_color = "#2a2a2a" if idx%2==0 else "#1f1f1f"
-    fire_html = fire_display_image(row['🔥 News Score'])
-    up10 = f"🔺 {row['Change %']}%" if row['Change %']>=10 else ""
+    bg_color = "#2a2a2a" if idx % 2 == 0 else "#1f1f1f"
+    diamond_html = diamond_display_emoji(row['💎 News Score'])
+    up10 = f"🔺 {row['Change %']}%" if row['Change %'] >= 10 else ""
     symbol_id = f"symbol-main-{idx}"
     st.markdown(f"""
     <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:10px; padding:8px; margin-bottom:3px;">
@@ -203,7 +194,7 @@ for idx, row in df_sorted.iterrows():
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
         <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
         <div style="width:10%; font-weight:bold; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']} <span id='{symbol_id}' style='color:#00ff00; font-weight:bold; display:none;'>COPIED</span></div>
-        <div style="width:15%; font-weight:bold;">{fire_html}</div>
+        <div style="width:15%; font-weight:bold;">{diamond_html}</div>
         <div style="width:10%; font-weight:bold; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
         <div style="width:12%; font-weight:bold; color:#ff99ff;">{row['Float']}</div>
