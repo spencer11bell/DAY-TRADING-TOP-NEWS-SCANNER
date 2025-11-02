@@ -137,7 +137,6 @@ body {
 
 h1 {
     font-family: 'Orbitron', sans-serif;
-    border: 2px solid black;
     padding: 6px;
     border-radius: 10px;
     display: inline-block;
@@ -197,7 +196,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ===== WATCHLIST ROWS WITH PULSE =====
+# ===== WATCHLIST ROWS =====
 for idx, row in watchlist_df.iterrows():
     symbol_id = f"watchlist-{idx}"
     stars_html = star_display(row['News Score'])
@@ -240,9 +239,9 @@ for idx, row in df_sorted.iterrows():
     symbol_id = f"scanner-{idx}"
     stars_html = star_display(row['News Score'])
     up10 = f'<span class="pulse">📈 {row["UP10%"]}%</span>' if row['UP10%'] >= 10 else f'📈 {row["UP10%"]}%'
-    bg_color = "#222222" if idx % 2 == 0 else "#111111"
+    bg_color = "#111122" if idx%2==0 else "#222244"
     st.markdown(f"""
-    <div class="row-hover" style="display:flex; flex-direction:row; align-items:center; justify-content:center; background:linear-gradient(145deg, #111111, #222222); border-radius:12px; padding:8px; margin-bottom:5px;">
+    <div class="row-hover" style="display:flex; flex-direction:row; align-items:center; justify-content:center; background:{bg_color}; border-radius:12px; padding:8px; margin-bottom:5px;">
         <div style="width:5%; text-align:center; color:#00ff00;">{up10}</div>
         <div style="width:5%; text-align:center; color:#ffffff;">{idx+1}</div>
         <div style="width:10%; text-align:center; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']}<span id='{symbol_id}' style='color:#00ff00; display:none;'> COPIED</span></div>
