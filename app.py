@@ -120,21 +120,33 @@ watchlist_df = df[
     (df['Float']<FLOAT_MAX)
 ].sort_values(by="🔥 News Score", ascending=False).head(WATCHLIST_TOP_N)
 
-st.markdown('<div style="background-color:#111111; padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
+st.markdown('<div style="background-color:#1a1a1a; padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
 st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Top 5 UP10% Stocks Meeting Criteria</h4>', unsafe_allow_html=True)
+
+# Column headers for watchlist
+st.markdown("""
+<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:4px; margin-bottom:2px;">
+    <div style="width:15%;">Symbol</div>
+    <div style="width:15%;">Price</div>
+    <div style="width:50%;">Headline</div>
+    <div style="width:20%;">🔥 News</div>
+</div>
+""", unsafe_allow_html=True)
+
+# Display each stock in watchlist with colored text
 for idx, row in watchlist_df.iterrows():
     fire_html = fire_display_multi(row['🔥 News Score'])
     st.markdown(f'''
-    <div style="display:flex; flex-direction:row; justify-content:space-between; color:#ffffff; padding:4px;">
-        <div style="width:15%; font-weight:bold;">{row['Symbol']}</div>
-        <div style="width:15%;">${row['Price']}</div>
-        <div style="width:50%;">{row['Headline']}</div>
+    <div style="display:flex; flex-direction:row; justify-content:space-between; padding:4px; margin-bottom:2px; background-color:#2a2a2a; border-radius:5px;">
+        <div style="width:15%; font-weight:bold; color:#00ffff;">{row['Symbol']}</div>
+        <div style="width:15%; color:#00ff00;">${row['Price']}</div>
+        <div style="width:50%; color:#ffffff;">{row['Headline']}</div>
         <div style="width:20%;">{fire_html}</div>
     </div>
     ''', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ===== COLUMN HEADERS =====
+# ===== COLUMN HEADERS FOR MAIN TABLE =====
 st.markdown("""
 <div style="display:flex; flex-direction:row; align-items:center; background-color:#2f2f2f; border-radius:10px; padding:8px; margin-bottom:2px;">
     <div style="width:5%; font-weight:bold; color:#ffffff;">UP 10%</div>
