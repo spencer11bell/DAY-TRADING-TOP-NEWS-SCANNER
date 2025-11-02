@@ -19,16 +19,18 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-# ===== DIAMOND EMOJI LOGIC =====
-def diamond_display_emoji(score: int) -> str:
-    """Return repeated diamond emoji scaled by score"""
+# ===== IMAGE PATH =====
+DIAMOND_IMG_PATH = "/mnt/data/8e2ec714-c766-4658-8cbd-60ece7aaca39.png"
+
+# ===== IMAGE LOGIC =====
+def diamond_display_image(score: int) -> str:
+    """Return HTML with image repeated and scaled by score"""
     if score <= 0:
         return ""
     score = min(score, 5)
-    # Optionally vary emoji size using HTML <span> font-size
-    size_map = {1: '18px', 2: '22px', 3: '28px', 4: '34px', 5: '42px'}
+    size_map = {1: 20, 2: 28, 3: 36, 4: 44, 5: 56}
     size = size_map[score]
-    return f'<span style="font-size:{size}; margin-right:2px;">💎</span>' * score
+    return f'<img src="{DIAMOND_IMG_PATH}" width="{size}" style="margin-right:2px;">' * score
 
 # ===== COLOR LOGIC =====
 def change_pct_color(change):
@@ -145,10 +147,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display watchlist rows with clickable symbols and diamond emoji
+# Display watchlist rows with clickable symbols and image
 for idx, row in watchlist_df.iterrows():
     color = change_pct_color(row['Change %'])
-    diamond_html = diamond_display_emoji(row['💎 News Score'])
+    diamond_html = diamond_display_image(row['💎 News Score'])
     up10 = f"🔺 {row['Change %']}%" if row['Change %']>=10 else ""
     symbol_id = f"symbol-{idx}"
     st.markdown(f"""
@@ -181,11 +183,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display top 20 main table with diamond emoji
+# Display top 20 main table with image
 for idx, row in df_sorted.iterrows():
     color = change_pct_color(row['Change %'])
     bg_color = "#2a2a2a" if idx % 2 == 0 else "#1f1f1f"
-    diamond_html = diamond_display_emoji(row['💎 News Score'])
+    diamond_html = diamond_display_image(row['💎 News Score'])
     up10 = f"🔺 {row['Change %']}%" if row['Change %'] >= 10 else ""
     symbol_id = f"symbol-main-{idx}"
     st.markdown(f"""
