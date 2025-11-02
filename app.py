@@ -39,4 +39,6 @@ count = st_autorefresh(interval=REFRESH_SECONDS*1000, limit=None, key="autorefre
 random.seed(42)
 
 def generate_fake_for_symbol(sym, seed):
-    """Gener
+    r = random.Random(f"{sym}-{seed}")
+    price = round(r.uniform(1, 30), 2)
+    prev_close = round(pri_
