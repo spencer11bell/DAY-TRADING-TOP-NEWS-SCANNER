@@ -4,9 +4,8 @@ import random
 import time
 from streamlit_autorefresh import st_autorefresh
 
-st.set_page_config(page_title="🔥 Auto Day Trading Scanner - FAKE DATA", layout="wide")
-
 # ===== CONFIG =====
+st.set_page_config(page_title="🔥 Auto Day Trading Scanner - FAKE DATA", layout="wide")
 PRICE_MIN = 2
 PRICE_MAX = 20
 FLOAT_MAX = 20_000_000  # 20 million
@@ -18,7 +17,7 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-# ===== FIRE EMOJI COLOR LOGIC =====
+# ===== FIRE EMOJI LOGIC =====
 def fire_display_colored(score: int) -> str:
     if score <= 0:
         return ""
@@ -35,3 +34,9 @@ def fire_display_colored(score: int) -> str:
 
 # ===== AUTO REFRESH =====
 count = st_autorefresh(interval=REFRESH_SECONDS*1000, limit=None, key="autorefresh")
+
+# ===== FAKE DATA GENERATOR =====
+random.seed(42)
+
+def generate_fake_for_symbol(sym, seed):
+    """Gener
