@@ -5,7 +5,7 @@ import time
 from streamlit_autorefresh import st_autorefresh
 
 # ===== CONFIG =====
-st.set_page_config(page_title="🔥 Day Trading Scanner - COLORFUL + GLOW", layout="wide")
+st.set_page_config(page_title="🔥 Day Trading Scanner - LEGIBLE", layout="wide")
 
 PRICE_MIN = 2
 PRICE_MAX = 20
@@ -70,7 +70,7 @@ def get_fake_stock_data(symbols, seed):
     return df_filtered
 
 # ===== MAIN DASHBOARD =====
-st.title("🔥 Auto-Updating Day Trading Scanner - COLORFUL + GLOW")
+st.title("🔥 Auto-Updating Day Trading Scanner - LEGIBLE")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s | Columns: Change %, Symbol, 🔥 News, Price, Volume, Float, Headline")
 
 # Use container to prevent blank page
@@ -80,6 +80,23 @@ with st.container():
     if df.empty:
         st.warning("No qualifying fake stocks matched filters right now.")
     else:
+        # Display column headers
+        st.markdown(
+            """
+            <div style="display:flex; flex-direction:row; align-items:center; background-color:#2f2f2f; border-radius:10px; padding:8px; margin-bottom:2px;">
+                <div style="width:8%; font-weight:bold; color:#ffffff;">#</div>
+                <div style="width:12%; font-weight:bold; color:#00ffff;">Change %</div>
+                <div style="width:12%; font-weight:bold; color:#ffffff;">Symbol</div>
+                <div style="width:12%; font-weight:bold; color:#ff9900;">🔥 News</div>
+                <div style="width:10%; font-weight:bold; color:#00ffff;">Price</div>
+                <div style="width:12%; font-weight:bold; color:#ffcc00;">Volume</div>
+                <div style="width:12%; font-weight:bold; color:#ff99ff;">Float</div>
+                <div style="width:30%; font-weight:bold; color:#ffffff;">Headline</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
         # Display each stock as a horizontal, colorful box
         for idx, row in df.head(10).iterrows():
             st.markdown(
