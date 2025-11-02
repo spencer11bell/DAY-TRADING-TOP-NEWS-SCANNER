@@ -19,10 +19,15 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-# ===== STAR DISPLAY LOGIC =====
+# ===== GRADUALLY SCALING STAR LOGIC =====
 def star_display(score: int) -> str:
+    """Return stars with gradually increasing size, capped for row height"""
     score = min(max(score, 0), 5)
-    return f'<span style="font-size:20px; color:#FFD700;">{"⭐" * score}</span>'
+    sizes = [16, 18, 20, 22, 24]  # Gradual increase
+    stars_html = ""
+    for i in range(score):
+        stars_html += f'<span style="font-size:{sizes[i]}px; color:#FFD700;">⭐</span>'
+    return f'<div style="height:24px;">{stars_html}</div>'  # fixed row height
 
 # ===== AUTO REFRESH =====
 count = st_autorefresh(interval=REFRESH_SECONDS*1000, limit=None, key="autorefresh")
@@ -111,17 +116,17 @@ st.session_state.prev_watchlist_symbols = current_symbols
 st.markdown('<div style="background-color:#2a2a3a; padding:12px; border-radius:12px; margin-bottom:20px;">', unsafe_allow_html=True)
 st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Strict UP10% Rules</h4>', unsafe_allow_html=True)
 
-# Column description above Watchlist
+# Column description above Watchlist with emojis
 st.markdown("""
 <div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; border-bottom:1px solid #00ffff; position:sticky; top:0; background-color:#2a2a3a; z-index:1;">
-    <div style="width:5%;">UP10%</div>
-    <div style="width:5%;">#</div>
-    <div style="width:10%;">SYMBOL</div>
-    <div style="width:10%;">PRICE</div>
-    <div style="width:12%;">VOLUME</div>
-    <div style="width:12%;">FLOAT</div>
-    <div style="width:24%;">HEADLINE</div>
-    <div style="width:15%;">NEWS</div>
+    <div style="width:5%;">🔺 UP10%</div>
+    <div style="width:5%;">#️⃣</div>
+    <div style="width:10%;">💠 SYMBOL</div>
+    <div style="width:10%;">💲 PRICE</div>
+    <div style="width:12%;">📊 VOLUME</div>
+    <div style="width:12%;">📦 FLOAT</div>
+    <div style="width:24%;">📰 HEADLINE</div>
+    <div style="width:15%;">⭐ NEWS</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -144,23 +149,23 @@ for idx, row in watchlist_df.iterrows():
     """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ===== DIVIDER BETWEEN WATCHLIST AND SCANNER =====
+# ===== DIVIDER =====
 st.markdown("<hr style='border:2px solid #00ffff; margin:20px 0;'>", unsafe_allow_html=True)
 
-# ===== MAIN SCANNER TABLE =====
+# ===== SCANNER =====
 st.markdown('<h4 style="color:#ff9900;">📊 Scanner - Top 20 Stocks</h4>', unsafe_allow_html=True)
 
-# Column description above Scanner
+# Column description with emojis
 st.markdown("""
 <div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; border-bottom:1px solid #ff9900; position:sticky; top:0; background-color:#1f1f1f; z-index:1;">
-    <div style="width:5%;">UP10%</div>
-    <div style="width:5%;">#</div>
-    <div style="width:10%;">SYMBOL</div>
-    <div style="width:10%;">PRICE</div>
-    <div style="width:12%;">VOLUME</div>
-    <div style="width:12%;">FLOAT</div>
-    <div style="width:24%;">HEADLINE</div>
-    <div style="width:15%;">NEWS</div>
+    <div style="width:5%;">🔺 UP10%</div>
+    <div style="width:5%;">#️⃣</div>
+    <div style="width:10%;">💠 SYMBOL</div>
+    <div style="width:10%;">💲 PRICE</div>
+    <div style="width:12%;">📊 VOLUME</div>
+    <div style="width:12%;">📦 FLOAT</div>
+    <div style="width:24%;">📰 HEADLINE</div>
+    <div style="width:15%;">⭐ NEWS</div>
 </div>
 """, unsafe_allow_html=True)
 
