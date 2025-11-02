@@ -123,9 +123,27 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Exo+2:wght@500&display=swap');
 
+body {
+    background: linear-gradient(-45deg, #0f0f1f, #1a1a2f, #0f0f1f, #1a1a2f);
+    background-size: 400% 400%;
+    animation: gradientBG 30s ease infinite;
+}
+
+@keyframes gradientBG {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
+}
+
 h1 {
     font-family: 'Orbitron', sans-serif;
+    border: 2px solid black;
+    padding: 6px;
+    border-radius: 10px;
+    display: inline-block;
+    text-align:center;
 }
+
 .column-header {
     font-family: 'Exo 2', monospace;
     font-weight: 600;
@@ -135,7 +153,7 @@ h1 {
 }
 .row-hover:hover {
     transform: scale(1.02);
-    box-shadow: 0 0 20px #0ff, 0 0 40px #0ff inset;
+    box-shadow: 0 0 10px #0ff, 0 0 20px #0ff inset;
 }
 .ticker {
     overflow: hidden;
@@ -155,15 +173,15 @@ h1 {
     animation: pulse 1s infinite alternate;
 }
 @keyframes pulse {
-    0% { text-shadow: 0 0 5px #ff3300, 0 0 10px #ff3300, 0 0 15px #ff3300; }
-    50% { text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff6600; }
-    100% { text-shadow: 0 0 5px #ff3300, 0 0 10px #ff3300, 0 0 15px #ff3300; }
+    0% { text-shadow: 0 0 3px #ff3300,0 0 6px #ff3300; }
+    50% { text-shadow: 0 0 6px #ff0000,0 0 12px #ff6600; }
+    100% { text-shadow: 0 0 3px #ff3300,0 0 6px #ff3300; }
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ===== WATCHLIST TITLE =====
-st.markdown('<h1 style="color:#00ffff; text-shadow:0 0 10px #0ff,0 0 20px #0ff;">📋 WATCHLIST</h1>', unsafe_allow_html=True)
+st.markdown('<h1 style="color:#00ffff; text-shadow:0 0 6px #0ff,0 0 12px #0ff;">🏅 WATCHLIST</h1>', unsafe_allow_html=True)
 
 # ===== WATCHLIST HEADERS =====
 st.markdown("""
@@ -174,8 +192,8 @@ st.markdown("""
     <div style="width:10%;">💲 PRICE</div>
     <div style="width:12%;">📊 VOLUME</div>
     <div style="width:12%;">📦 FLOAT</div>
-    <div style="width:24%;">📰 HEADLINE</div>
-    <div style="width:15%;">⭐ NEWS</div>
+    <div style="width:24%;">📰 NEWS</div>
+    <div style="width:15%;">⭐ NEWS SCORE</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -185,7 +203,7 @@ for idx, row in watchlist_df.iterrows():
     stars_html = star_display(row['News Score'])
     up10 = f'<span class="pulse">📈 {row["UP10%"]}%</span>' if row['UP10%'] >= 10 else f'📈 {row["UP10%"]}%'
     st.markdown(f"""
-    <div class="row-hover" style="display:flex; flex-direction:row; align-items:center; justify-content:center; background:linear-gradient(145deg, #111133, #222266); border-radius:12px; padding:8px; margin-bottom:5px; box-shadow:0 4px 20px #0ff,0 0 40px #00ffff inset;">
+    <div class="row-hover" style="display:flex; flex-direction:row; align-items:center; justify-content:center; background:linear-gradient(145deg, #111133, #222266); border-radius:12px; padding:8px; margin-bottom:5px;">
         <div style="width:5%; text-align:center; color:#00ff00;">{up10}</div>
         <div style="width:5%; text-align:center; color:#ffffff;">{idx+1}</div>
         <div style="width:10%; text-align:center; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']}<span id='{symbol_id}' style='color:#00ff00; display:none;'> COPIED</span></div>
@@ -201,7 +219,7 @@ for idx, row in watchlist_df.iterrows():
 st.markdown("<hr style='border:2px solid #00ffff; margin:20px 0;'>", unsafe_allow_html=True)
 
 # ===== SCANNER TITLE =====
-st.markdown('<h1 style="color:#ff9900; text-shadow:0 0 10px #f90,0 0 20px #f90;">SPENCER KYLE\'S SCANNER</h1>', unsafe_allow_html=True)
+st.markdown('<h1 style="color:#ff9900; text-shadow:0 0 6px #f90,0 0 12px #f90;">🛰️ SPENCER KYLE\'S SCANNER</h1>', unsafe_allow_html=True)
 
 # ===== SCANNER HEADERS =====
 st.markdown("""
@@ -212,19 +230,19 @@ st.markdown("""
     <div style="width:10%;">💲 PRICE</div>
     <div style="width:12%;">📊 VOLUME</div>
     <div style="width:12%;">📦 FLOAT</div>
-    <div style="width:24%;">📰 HEADLINE</div>
-    <div style="width:15%;">⭐ NEWS</div>
+    <div style="width:24%;">📰 NEWS</div>
+    <div style="width:15%;">⭐ NEWS SCORE</div>
 </div>
 """, unsafe_allow_html=True)
 
-# ===== SCANNER ROWS WITH PULSE =====
+# ===== SCANNER ROWS =====
 for idx, row in df_sorted.iterrows():
     symbol_id = f"scanner-{idx}"
     stars_html = star_display(row['News Score'])
     up10 = f'<span class="pulse">📈 {row["UP10%"]}%</span>' if row['UP10%'] >= 10 else f'📈 {row["UP10%"]}%'
     bg_color = "#222222" if idx % 2 == 0 else "#111111"
     st.markdown(f"""
-    <div class="row-hover" style="display:flex; flex-direction:row; align-items:center; justify-content:center; background:linear-gradient(145deg, #111111, #222222); border-radius:12px; padding:8px; margin-bottom:5px; box-shadow:0 4px 20px #ff9900,0 0 40px #f90 inset;">
+    <div class="row-hover" style="display:flex; flex-direction:row; align-items:center; justify-content:center; background:linear-gradient(145deg, #111111, #222222); border-radius:12px; padding:8px; margin-bottom:5px;">
         <div style="width:5%; text-align:center; color:#00ff00;">{up10}</div>
         <div style="width:5%; text-align:center; color:#ffffff;">{idx+1}</div>
         <div style="width:10%; text-align:center; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']}<span id='{symbol_id}' style='color:#00ff00; display:none;'> COPIED</span></div>
