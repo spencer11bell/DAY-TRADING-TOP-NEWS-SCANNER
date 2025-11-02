@@ -89,6 +89,20 @@ def play_chime_html():
     </audio>
     """, unsafe_allow_html=True)
 
+# ===== COPY-TO-CLIPBOARD JS =====
+COPY_JS = """
+<script>
+function copySymbol(symbol, id){
+    navigator.clipboard.writeText(symbol);
+    let indicator = document.getElementById(id);
+    indicator.style.display='inline';
+    setTimeout(()=>{indicator.style.display='none';}, 1000);
+}
+</script>
+"""
+
+st.markdown(COPY_JS, unsafe_allow_html=True)
+
 # ===== MAIN DASHBOARD =====
 st.title("🔥 Day Trading Scanner - Watchlist UP10%")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s")
@@ -96,7 +110,6 @@ st.caption(f"Auto-refresh every {REFRESH_SECONDS}s")
 # Toggle for chime
 if 'alerts_enabled' not in st.session_state:
     st.session_state.alerts_enabled = False
-
 if st.button("🔔 Enable Watchlist Chimes"):
     st.session_state.alerts_enabled = True
 
@@ -144,17 +157,18 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display watchlist rows
+# Display watchlist rows with clickable symbols
 for idx, row in watchlist_df.iterrows():
     color = change_pct_color(row['Change %'])
     fire_html = fire_display(row['🔥 News Score'])
     up10 = "🔺" if row['Change %']>=10 else ""
+    symbol_id = f"symbol-{idx}"
     st.markdown(f"""
     <div style="display:flex; flex-direction:row; align-items:center; background-color:#2a2a2a; border-radius:8px; padding:6px; margin-bottom:3px;">
         <div style="width:5%; font-weight:bold; color:#00ff00;">{up10}</div>
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
         <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
-        <div style="width:10%; font-weight:bold; color:#00ffff;">{row['Symbol']}</div>
+        <div style="width:10%; font-weight:bold; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']} <span id='{symbol_id}' style='color:#00ff00; font-weight:bold; display:none;'>COPIED</span></div>
         <div style="width:15%; font-weight:bold;">{fire_html}</div>
         <div style="width:10%; font-weight:bold; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
@@ -179,18 +193,19 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display top 20
+# Display top 20 main table with clickable symbols
 for idx, row in df_sorted.iterrows():
     color = change_pct_color(row['Change %'])
     bg_color = "#2a2a2a" if idx%2==0 else "#1f1f1f"
     fire_html = fire_display(row['🔥 News Score'])
     up10 = "🔺" if row['Change %']>=10 else ""
+    symbol_id = f"symbol-main-{idx}"
     st.markdown(f"""
     <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:10px; padding:8px; margin-bottom:3px;">
         <div style="width:5%; font-weight:bold; color:#00ff00;">{up10}</div>
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
         <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
-        <div style="width:10%; font-weight:bold; color:#00ffff;">{row['Symbol']}</div>
+        <div style="width:10%; font-weight:bold; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']} <span id='{symbol_id}' style='color:#00ff00; font-weight:bold; display:none;'>COPIED</span></div>
         <div style="width:15%; font-weight:bold;">{fire_html}</div>
         <div style="width:10%; font-weight:bold; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
