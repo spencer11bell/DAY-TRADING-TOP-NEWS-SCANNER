@@ -3,9 +3,10 @@ import pandas as pd
 import random
 import time
 from streamlit_autorefresh import st_autorefresh
+import base64
 
 # ===== CONFIG =====
-st.set_page_config(page_title="💎 Day Trading Scanner - Watchlist UP10%", layout="wide")
+st.set_page_config(page_title="Day Trading Scanner - Watchlist UP10%", layout="wide")
 
 PRICE_MIN = 2
 PRICE_MAX = 20
@@ -22,6 +23,14 @@ DEFAULT_SYMBOLS = [
 # ===== IMAGE PATH =====
 DIAMOND_IMG_PATH = "/mnt/data/8e2ec714-c766-4658-8cbd-60ece7aaca39.png"
 
+# ===== CONVERT IMAGE TO BASE64 =====
+def get_base64_image(img_path):
+    with open(img_path, "rb") as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+DIAMOND_BASE64 = get_base64_image(DIAMOND_IMG_PATH)
+
 # ===== IMAGE LOGIC =====
 def diamond_display_image(score: int) -> str:
     """Return HTML with image repeated and scaled by score"""
@@ -30,7 +39,8 @@ def diamond_display_image(score: int) -> str:
     score = min(score, 5)
     size_map = {1: 20, 2: 28, 3: 36, 4: 44, 5: 56}
     size = size_map[score]
-    return f'<img src="{DIAMOND_IMG_PATH}" width="{size}" style="margin-right:2px;">' * score
+    # Use base64 img in HTML
+    return f'<img src="data:image/png;base64,{DIAMOND_BASE64}" width="{size}" style="margin-right:2px;">' * score
 
 # ===== COLOR LOGIC =====
 def change_pct_color(change):
@@ -94,7 +104,7 @@ function copySymbol(symbol, id){
 st.markdown(COPY_JS, unsafe_allow_html=True)
 
 # ===== MAIN DASHBOARD =====
-st.title("💎 Day Trading Scanner - Watchlist UP10%")
+st.title("Day Trading Scanner - Watchlist UP10%")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s")
 
 # Toggle for chime
@@ -139,7 +149,7 @@ st.markdown("""
     <div style="width:5%;">#</div>
     <div style="width:12%;">Change %</div>
     <div style="width:10%;">Symbol</div>
-    <div style="width:15%;">💎 News</div>
+    <div style="width:15%;">News</div>
     <div style="width:10%;">Price</div>
     <div style="width:12%;">Volume</div>
     <div style="width:12%;">Float</div>
@@ -147,7 +157,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display watchlist rows with clickable symbols and image
+# Display watchlist rows with image
 for idx, row in watchlist_df.iterrows():
     color = change_pct_color(row['Change %'])
     diamond_html = diamond_display_image(row['💎 News Score'])
@@ -175,7 +185,7 @@ st.markdown("""
     <div style="width:5%; font-weight:bold; color:#ffffff;">#</div>
     <div style="width:12%; font-weight:bold; color:#00ffff;">Change %</div>
     <div style="width:10%; font-weight:bold; color:#ffffff;">Symbol</div>
-    <div style="width:15%; font-weight:bold; color:#ff33ff;">💎 News</div>
+    <div style="width:15%; font-weight:bold; color:#ff33ff;">News</div>
     <div style="width:10%; font-weight:bold; color:#00ffff;">Price</div>
     <div style="width:12%; font-weight:bold; color:#ffcc00;">Volume</div>
     <div style="width:12%; font-weight:bold; color:#ff99ff;">Float</div>
