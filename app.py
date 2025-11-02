@@ -111,17 +111,17 @@ st.session_state.prev_watchlist_symbols = current_symbols
 st.markdown('<div style="background-color:#2a2a3a; padding:12px; border-radius:12px; margin-bottom:20px;">', unsafe_allow_html=True)
 st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Strict UP10% Rules</h4>', unsafe_allow_html=True)
 
-# Watchlist headers
+# Column description above Watchlist
 st.markdown("""
-<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; border-bottom:1px solid #00ffff;">
+<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; border-bottom:1px solid #00ffff; position:sticky; top:0; background-color:#2a2a3a; z-index:1;">
     <div style="width:5%;">UP10%</div>
     <div style="width:5%;">#</div>
-    <div style="width:10%;">Symbol</div>
-    <div style="width:10%;">Price</div>
-    <div style="width:12%;">Volume</div>
-    <div style="width:12%;">Float</div>
-    <div style="width:24%;">Headline</div>
-    <div style="width:15%;">News</div>
+    <div style="width:10%;">SYMBOL</div>
+    <div style="width:10%;">PRICE</div>
+    <div style="width:12%;">VOLUME</div>
+    <div style="width:12%;">FLOAT</div>
+    <div style="width:24%;">HEADLINE</div>
+    <div style="width:15%;">NEWS</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -150,17 +150,17 @@ st.markdown("<hr style='border:2px solid #00ffff; margin:20px 0;'>", unsafe_allo
 # ===== MAIN SCANNER TABLE =====
 st.markdown('<h4 style="color:#ff9900;">📊 Scanner - Top 20 Stocks</h4>', unsafe_allow_html=True)
 
-# Scanner headers
+# Column description above Scanner
 st.markdown("""
-<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; border-bottom:1px solid #ff9900;">
+<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; border-bottom:1px solid #ff9900; position:sticky; top:0; background-color:#1f1f1f; z-index:1;">
     <div style="width:5%;">UP10%</div>
     <div style="width:5%;">#</div>
-    <div style="width:10%;">Symbol</div>
-    <div style="width:10%;">Price</div>
-    <div style="width:12%;">Volume</div>
-    <div style="width:12%;">Float</div>
-    <div style="width:24%;">Headline</div>
-    <div style="width:15%;">News</div>
+    <div style="width:10%;">SYMBOL</div>
+    <div style="width:10%;">PRICE</div>
+    <div style="width:12%;">VOLUME</div>
+    <div style="width:12%;">FLOAT</div>
+    <div style="width:24%;">HEADLINE</div>
+    <div style="width:15%;">NEWS</div>
 </div>
 """, unsafe_allow_html=True)
 
