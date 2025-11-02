@@ -21,20 +21,11 @@ DEFAULT_SYMBOLS = [
 
 # ===== STAR DISPLAY LOGIC =====
 def star_display(score: int) -> str:
-    """Return HTML stars with fixed font size for uniform row height"""
+    """Return HTML stars with drop shadow to make them pop"""
     if score <= 0:
         return ""
     score = min(score, 5)
-    return f'<span style="font-size:20px; color:#FFD700;">{"⭐" * score}</span>'
-
-# ===== COLOR LOGIC =====
-def change_pct_color(change):
-    if change > 5:
-        return "#00ff00"
-    elif 1 <= change <= 4:
-        return "#ffff00"
-    else:
-        return "#ff4d4d"
+    return f'<span style="font-size:20px; color:#FFD700; text-shadow: 1px 1px 2px #000000;">{"⭐" * score}</span>'
 
 # ===== AUTO REFRESH =====
 count = st_autorefresh(interval=REFRESH_SECONDS*1000, limit=None, key="autorefresh")
@@ -44,8 +35,6 @@ random.seed(42)
 def generate_fake_for_symbol(sym, seed):
     r = random.Random(f"{sym}-{seed}")
     price = round(r.uniform(PRICE_MIN, PRICE_MAX), 2)
-    prev_close = round(price / (1 + r.uniform(-0.15,0.15)),2)
-    change_pct = round((price - prev_close)/prev_close*100,2) if prev_close!=0 else 0
     avg_vol = int(r.uniform(10000,5000000))
     volume = int(avg_vol * r.uniform(1,15))
     float_shares = int(r.uniform(500_000,FLOAT_MAX))
@@ -53,7 +42,6 @@ def generate_fake_for_symbol(sym, seed):
     headline_prefix = "BREAKING: " if r.random()<0.25 else ""
     headline = f"{headline_prefix}{sym} {r.choice(['announces','reports','launches','files'])} {r.choice(['earnings','partnership','product'])}"
     return {
-        "Change %": change_pct,
         "Symbol": sym,
         "Price": price,
         "Volume": volume,
@@ -98,14 +86,12 @@ if st.button("🔔 Enable Watchlist Chimes"):
 
 # Generate Data
 df = get_fake_stock_data(DEFAULT_SYMBOLS, count)
-df_sorted = df.sort_values(by="Change %", ascending=False).reset_index(drop=True)
 
 # ===== WATCHLIST LOGIC =====
 if 'prev_watchlist_symbols' not in st.session_state:
     st.session_state.prev_watchlist_symbols = []
 
 watchlist_df = df[
-    (df['Change %']>=10) &
     (df['Price'].between(PRICE_MIN,PRICE_MAX)) &
     (df['News Score']>=4) &
     (df['Volume'] >= 5*df['AvgVol']) &
@@ -122,15 +108,13 @@ if st.session_state.alerts_enabled:
 st.session_state.prev_watchlist_symbols = current_symbols
 
 # ===== WATCHLIST DISPLAY =====
-st.markdown('<div style="background-color:#1a1a1a; padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
-st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Top 5 UP10% Stocks</h4>', unsafe_allow_html=True)
+st.markdown('<div style="background-color:#1a1a1a; padding:12px; border-radius:12px; margin-bottom:20px;">', unsafe_allow_html=True)
+st.markdown('<h4 style="color:#00ffff; margin-bottom:10px;">📋 Watchlist - Top 5 UP10% Stocks</h4>', unsafe_allow_html=True)
 
-# Column headers
+# Column headers (without Change %)
 st.markdown("""
 <div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:4px; margin-bottom:2px;">
-    <div style="width:5%;">UP10%</div>
     <div style="width:5%;">#</div>
-    <div style="width:12%;">Change %</div>
     <div style="width:10%;">Symbol</div>
     <div style="width:10%;">Price</div>
     <div style="width:12%;">Volume</div>
@@ -142,15 +126,11 @@ st.markdown("""
 
 # Display rows
 for idx, row in watchlist_df.iterrows():
-    color = change_pct_color(row['Change %'])
     stars_html = star_display(row['News Score'])
-    up10 = f"🔺 {row['Change %']}%" if row['Change %']>=10 else ""
     symbol_id = f"symbol-{idx}"
     st.markdown(f"""
     <div style="display:flex; flex-direction:row; align-items:center; background-color:#2a2a2a; border-radius:8px; padding:6px; margin-bottom:3px;">
-        <div style="width:5%; font-weight:bold; color:#00ff00;">{up10}</div>
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
-        <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
         <div style="width:10%; font-weight:bold; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']} <span id='{symbol_id}' style='color:#00ff00; font-weight:bold; display:none;'>COPIED</span></div>
         <div style="width:10%; font-weight:bold; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
@@ -161,12 +141,18 @@ for idx, row in watchlist_df.iterrows():
     """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
+# ===== DIVIDER BETWEEN WATCHLIST AND SCANNER =====
+st.markdown("""
+<div style="margin:20px 0; border-top:3px solid #00ffff;"></div>
+""", unsafe_allow_html=True)
+
 # ===== MAIN TABLE =====
+st.markdown('<h4 style="color:#00ffff; margin-bottom:10px;">💹 Scanner - Top Stocks</h4>', unsafe_allow_html=True)
+
+# Column headers (without Change %)
 st.markdown("""
 <div style="display:flex; flex-direction:row; align-items:center; background-color:#2f2f2f; border-radius:10px; padding:8px; margin-bottom:2px;">
-    <div style="width:5%; font-weight:bold; color:#ffffff;">UP 10%</div>
     <div style="width:5%; font-weight:bold; color:#ffffff;">#</div>
-    <div style="width:12%; font-weight:bold; color:#00ffff;">Change %</div>
     <div style="width:10%; font-weight:bold; color:#ffffff;">Symbol</div>
     <div style="width:10%; font-weight:bold; color:#00ffff;">Price</div>
     <div style="width:12%; font-weight:bold; color:#ffcc00;">Volume</div>
@@ -177,17 +163,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Display top 20 main table
-for idx, row in df_sorted.iterrows():
-    color = change_pct_color(row['Change %'])
+for idx, row in df.iterrows():
     bg_color = "#2a2a2a" if idx % 2 == 0 else "#1f1f1f"
     stars_html = star_display(row['News Score'])
-    up10 = f"🔺 {row['Change %']}%" if row['Change %'] >= 10 else ""
     symbol_id = f"symbol-main-{idx}"
     st.markdown(f"""
     <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:10px; padding:8px; margin-bottom:3px;">
-        <div style="width:5%; font-weight:bold; color:#00ff00;">{up10}</div>
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
-        <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
         <div style="width:10%; font-weight:bold; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']} <span id='{symbol_id}' style='color:#00ff00; font-weight:bold; display:none;'>COPIED</span></div>
         <div style="width:10%; font-weight:bold; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
