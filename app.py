@@ -5,7 +5,7 @@ import time
 from streamlit_autorefresh import st_autorefresh
 
 # ===== CONFIG =====
-st.set_page_config(page_title="🔥 Day Trading Scanner - COLOR-CODED CHANGE %", layout="wide")
+st.set_page_config(page_title="🔥 Day Trading Scanner - Animated Fire", layout="wide")
 
 PRICE_MIN = 2
 PRICE_MAX = 20
@@ -18,14 +18,34 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-# ===== FIRE EMOJI LOGIC MULTI-FIRE =====
+# ===== FIRE EMOJI LOGIC MULTI-FIRE WITH ANIMATION =====
 def fire_display_multi(score: int) -> str:
-    """Returns multiple fire emojis depending on popularity score (1-5)"""
+    """Returns multiple fire emojis depending on popularity score (1-5) with pulse animation"""
     if score <= 0:
         return ""
     score = min(score,5)
     color = "red" if score >=4 else "orange" if score>=2 else "yellow"
-    return f'<span style="color:{color}; text-shadow: 0 0 {score*2}px {color};">{"🔥"*score}</span>'
+    return f'''
+    <span style="
+        color:{color};
+        text-shadow: 0 0 {score*2}px {color};
+        animation: pulse 1.2s infinite alternate;
+        font-size:18px;
+        ">
+        {'🔥'*score}
+    </span>
+    '''
+
+# CSS for pulse animation
+st.markdown("""
+<style>
+@keyframes pulse {
+  0% {transform: scale(1);}
+  50% {transform: scale(1.2);}
+  100% {transform: scale(1);}
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ===== COLOR LOGIC FOR CHANGE % =====
 def change_pct_color(change):
@@ -41,7 +61,6 @@ count = st_autorefresh(interval=REFRESH_SECONDS*1000, limit=None, key="autorefre
 
 # ===== FAKE DATA GENERATOR =====
 random.seed(42)
-
 def generate_fake_for_symbol(sym, seed):
     r = random.Random(f"{sym}-{seed}")
     price = round(r.uniform(PRICE_MIN, PRICE_MAX), 2)
@@ -50,7 +69,7 @@ def generate_fake_for_symbol(sym, seed):
     avg_vol = int(r.uniform(10000, 5000000))
     volume = int(avg_vol * r.uniform(1, 15))
     float_shares = int(r.uniform(500_000, FLOAT_MAX))
-    fire_score = r.randint(1,5)  # popularity 1-5
+    fire_score = r.randint(1,5)
     headline_prefix = "BREAKING: " if r.random() < 0.25 else ""
     headline = f"{headline_prefix}{sym} {r.choice(['announces','reports','launches','files'])} {r.choice(['earnings','partnership','product'])}"
     return {
@@ -64,19 +83,15 @@ def generate_fake_for_symbol(sym, seed):
     }
 
 def get_fake_stock_data(symbols, seed):
-    # Generate data for all symbols (top 20 fixed)
     df = pd.DataFrame([generate_fake_for_symbol(s, seed) for s in symbols[:TOP_N]])
     return df
 
 # ===== MAIN DASHBOARD =====
-st.title("🔥 Fixed Top 20 Day Trading Scanner - COLOR-CODED CHANGE %")
+st.title("🔥 Fixed Top 20 Day Trading Scanner - Animated Fire")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s | Columns: Change %, Symbol, 🔥 News, Price, Volume, Float, Headline")
 
-# Container for list to prevent blank page
 with st.container():
     df = get_fake_stock_data(DEFAULT_SYMBOLS, count)
-
-    # Sort by Change % descending to update ranking dynamically
     df_sorted = df.sort_values(by="Change %", ascending=False).reset_index(drop=True)
 
     # Column headers
@@ -96,12 +111,13 @@ with st.container():
         unsafe_allow_html=True
     )
 
-    # Display each stock (top 20 fixed)
+    # Display each stock (alternating row colors)
     for idx, row in df_sorted.iterrows():
         color = change_pct_color(row['Change %'])
+        bg_color = "#2a2a2a" if idx % 2 == 0 else "#1f1f1f"
         st.markdown(
             f"""
-            <div style="display:flex; flex-direction:row; align-items:center; background-color:#1f1f1f; border-radius:10px; padding:8px; margin-bottom:3px;">
+            <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:10px; padding:8px; margin-bottom:3px;">
                 <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
                 <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
                 <div style="width:10%; font-weight:bold; color:#ffffff;">{row['Symbol']}</div>
