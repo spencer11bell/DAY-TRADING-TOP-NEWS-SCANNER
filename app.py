@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import random
 import time
+import base64
 from streamlit_autorefresh import st_autorefresh
 
 # ===== CONFIG =====
@@ -26,10 +27,17 @@ def fire_display_image(score: int) -> str:
     """Return HTML with fire image, size proportional to score"""
     if score <= 0:
         return ""
-    score = min(score,5)
-    size_map = {1:20,2:28,3:36,4:44,5:56}
+    score = min(score, 5)
+    size_map = {1: 20, 2: 28, 3: 36, 4: 44, 5: 56}
     size = size_map[score]
-    return f'<img src="{FIRE_IMG_PATH}" width="{size}" style="margin-right:2px;">'*score
+
+    # Encode image in base64
+    with open(FIRE_IMG_PATH, "rb") as f:
+        img_bytes = f.read()
+    img_base64 = base64.b64encode(img_bytes).decode()
+
+    img_tag = f'<img src="data:image/png;base64,{img_base64}" width="{size}" style="margin-right:2px;">'
+    return img_tag * score
 
 # ===== COLOR LOGIC =====
 def change_pct_color(change):
