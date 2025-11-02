@@ -1,21 +1,27 @@
+# app.py - FAKE DATA MODE (for testing UI)
+# ------------------------------------------------------------------
+# Replace this file with your real scanner code when ready.
+# To switch back: remove the section marked "FAKE DATA BLOCK" and
+# re-insert your yfinance/news calls (see previous version).
+# ------------------------------------------------------------------
+
 import streamlit as st
 import pandas as pd
-import yfinance as yf
-import requests
 import time
+import random
 
-st.set_page_config(page_title="🔥 Auto Day Trading Scanner", layout="wide")
+st.set_page_config(page_title="🔥 Auto Day Trading Scanner - FAKE DATA", layout="wide")
 
 # ===== CONFIG =====
 PRICE_MIN = 2
 PRICE_MAX = 20
 FLOAT_MAX = 20_000_000  # 20 million
 VOLUME_MULTIPLIER = 5
-REFRESH_SECONDS = 20
+REFRESH_SECONDS = 10  # faster for testing
 DEFAULT_SYMBOLS = [
-    "TSLA", "AAPL", "NVDA", "AMD", "PLTR", "SOFI", "MARA", "RIOT",
-    "BABA", "TQQQ", "AMZN", "META", "NFLX", "LCID", "NIO", "COIN",
-    "AI", "UPST", "GME", "HOOD"
+    "AAA", "BBB", "CCC", "DDD", "EEE", "FFF", "GGG", "HHH",
+    "III", "JJJ", "KKK", "LLL", "MMM", "NNN", "OOO", "PPP",
+    "QQQ", "RRR", "SSS", "TTT"
 ]
 
 # ===== FIRE EMOJI COLOR LOGIC =====
@@ -33,90 +39,27 @@ def fire_display_colored(score: int) -> str:
     else:
         return "❤️‍🔥🔥🔥🔥🔥"
 
-# ===== GET NEWS =====
-def get_news_headline(symbol):
-    try:
-        url = f"https://query1.finance.yahoo.com/v1/finance/search?q={symbol}"
-        res = requests.get(url).json()
-        items = [i["title"] for i in res.get("news", []) if "title" in i]
-        return items[0] if items else "—"
-    except Exception:
-        return "—"
+# ===== FAKE DATA GENERATOR =====
+# Deterministic randomness so reloading shows consistent results during testing
+random.seed(42)
 
-# ===== GET STOCK DATA =====
-def get_stock_data(symbols):
-    data = []
-    for sym in symbols:
-        try:
-            info = yf.Ticker(sym).info
-            price = info.get("regularMarketPrice")
-            prev_close = info.get("previousClose")
-            if not price or not prev_close:
-                continue
+def generate_fake_for_symbol(sym: str, iteration_seed: int):
+    """
+    Returns a dict matching the expected columns:
+    Change %, Symbol, 🔥 News (emoji), Price, Volume, Float, Headline, SortScore
+    Some symbols will meet filters, others will not. This simulates a real run.
+    """
+    # create pseudo-random deterministic values using symbol + iteration_seed
+    r = random.Random(f"{sym}-{iteration_seed}")
 
-            change_pct = ((price - prev_close) / prev_close) * 100
-            volume = info.get("volume", 0)
-            avg_vol = info.get("averageVolume", 1)
-            float_shares = info.get("floatShares", 0)
-            vol_ratio = volume / avg_vol if avg_vol else 0
+    # price intentionally usually between 1 and 30, so filter will exclude some
+    price = round(r.uniform(1.0, 30.0), 2)
+    prev_close = round(price / (1 + r.uniform(-0.15, 0.15)), 2)  # +/-15% variation
+    if prev_close == 0:
+        change_pct = 0.0
+    else:
+        change_pct = round((price - prev_close) / prev_close * 100, 2)
 
-            if (
-                PRICE_MIN <= price <= PRICE_MAX
-                and float_shares <= FLOAT_MAX
-                and vol_ratio >= VOLUME_MULTIPLIER
-            ):
-                headline = get_news_headline(sym)
-                data.append({
-                    "Change %": round(change_pct, 2),
-                    "Symbol": sym,
-                    "🔥 News": fire_display_colored(int(min(vol_ratio // 2, 5))),
-                    "Price": round(price, 2),
-                    "Volume": volume,
-                    "Float": float_shares,
-                    "Headline": headline,
-                    "SortScore": vol_ratio + abs(change_pct)
-                })
-        except Exception:
-            continue
-
-    df = pd.DataFrame(data)
-    if not df.empty:
-        df = df.sort_values(by="SortScore", ascending=False)
-    return df
-
-# ===== MAIN DASHBOARD =====
-st.title("🔥 Auto-Updating Day Trading Scanner + Top Movers")
-st.caption(
-    f"Auto-refresh every {REFRESH_SECONDS}s | Filters $2–$20 | Float <20 M | ≥5× Avg Vol | Breaking News"
-)
-
-placeholder = st.empty()
-
-while True:
-    with placeholder.container():
-        df = get_stock_data(DEFAULT_SYMBOLS)
-        if df.empty:
-            st.warning("No qualifying stocks right now.")
-        else:
-            # --- Top 10 Movers ---
-            st.subheader("🏆 Top 10 Movers (Ranked by Volume + Price Change Strength)")
-            top10 = df.head(10).copy()
-            top10.insert(0, "#", range(1, len(top10) + 1))
-            st.dataframe(
-                top10[["#", "Change %", "Symbol", "🔥 News", "Price", "Volume", "Float", "Headline"]],
-                use_container_width=True,
-                hide_index=True
-            )
-
-            st.divider()
-            st.subheader("📊 Full Scanner Results")
-            st.dataframe(
-                df[["Change %", "Symbol", "🔥 News", "Price", "Volume", "Float", "Headline"]],
-                use_container_width=True,
-                hide_index=True
-            )
-
-        st.caption(f"🔄 Last updated: {time.strftime('%H:%M:%S')}")
-
-    time.sleep(REFRESH_SECONDS)
-    st.rerun()
+    # average volume between 10k and 5M, volume sometimes spikes to simulate movers
+    avg_vol = int(r.uniform(10_000, 5_000_000))
+    # make volume often >= 5x avg for a subset (appro
