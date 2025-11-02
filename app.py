@@ -19,27 +19,17 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-# ===== FIRE EMOJI HYPER-REALISTIC LOGIC =====
-def fire_display(score: int) -> str:
-    """Return premium hyper-realistic fire emoji using emoji + glow + text-shadow + gradient"""
+FIRE_IMG_PATH = "/mnt/data/b31e03c2-9014-4405-9ca0-f3aa3d660a07.png"
+
+# ===== FIRE IMAGE LOGIC =====
+def fire_display_image(score: int) -> str:
+    """Return HTML with fire image, size proportional to score"""
     if score <= 0:
         return ""
     score = min(score,5)
-    size_map = {1:18, 2:22, 3:26, 4:32, 5:40}
+    size_map = {1:20,2:28,3:36,4:44,5:56}
     size = size_map[score]
-    return f'''
-    <span style="
-        font-size:{size}px;
-        font-weight:bold;
-        color:#ff4500;
-        background: linear-gradient(45deg, #ff8c00, #ff4500, #ff6347);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 {score*3}px #ff7f50, 0 0 {score*5}px #ff6347, 0 0 {score*7}px #ff4500;
-        ">
-        {"🔥"*score}
-    </span>
-    '''
+    return f'<img src="{FIRE_IMG_PATH}" width="{size}" style="margin-right:2px;">'*score
 
 # ===== COLOR LOGIC =====
 def change_pct_color(change):
@@ -156,10 +146,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display watchlist rows with clickable symbols and exact % in UP10%
+# Display watchlist rows with clickable symbols and fire image
 for idx, row in watchlist_df.iterrows():
     color = change_pct_color(row['Change %'])
-    fire_html = fire_display(row['🔥 News Score'])
+    fire_html = fire_display_image(row['🔥 News Score'])
     up10 = f"🔺 {row['Change %']}%" if row['Change %']>=10 else ""
     symbol_id = f"symbol-{idx}"
     st.markdown(f"""
@@ -192,11 +182,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display top 20 main table with clickable symbols and exact % in UP10%
+# Display top 20 main table with fire image
 for idx, row in df_sorted.iterrows():
     color = change_pct_color(row['Change %'])
     bg_color = "#2a2a2a" if idx%2==0 else "#1f1f1f"
-    fire_html = fire_display(row['🔥 News Score'])
+    fire_html = fire_display_image(row['🔥 News Score'])
     up10 = f"🔺 {row['Change %']}%" if row['Change %']>=10 else ""
     symbol_id = f"symbol-main-{idx}"
     st.markdown(f"""
