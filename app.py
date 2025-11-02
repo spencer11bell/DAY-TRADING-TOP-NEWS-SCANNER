@@ -20,26 +20,21 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-# ===== IMAGE PATH =====
-DIAMOND_IMG_PATH = "/mnt/data/8e2ec714-c766-4658-8cbd-60ece7aaca39.png"
+# ===== EMBED YOUR PNG BASE64 =====
+DIAMOND_BASE64 = "<PASTE-YOUR-UPLOADED-PNG-BASE64-HERE>"
 
-# ===== CONVERT IMAGE TO BASE64 =====
-def get_base64_image(img_path):
-    with open(img_path, "rb") as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
-DIAMOND_BASE64 = get_base64_image(DIAMOND_IMG_PATH)
+# ===== OPTIONAL UPLOAD PNG (Overrides default) =====
+uploaded_file = st.sidebar.file_uploader("Upload PNG to replace default", type=["png"])
+if uploaded_file:
+    DIAMOND_BASE64 = base64.b64encode(uploaded_file.read()).decode()
 
 # ===== IMAGE LOGIC =====
 def diamond_display_image(score: int) -> str:
-    """Return HTML with image repeated and scaled by score"""
-    if score <= 0:
+    if not DIAMOND_BASE64 or score <= 0:
         return ""
     score = min(score, 5)
     size_map = {1: 20, 2: 28, 3: 36, 4: 44, 5: 56}
     size = size_map[score]
-    # Use base64 img in HTML
     return f'<img src="data:image/png;base64,{DIAMOND_BASE64}" width="{size}" style="margin-right:2px;">' * score
 
 # ===== COLOR LOGIC =====
@@ -79,8 +74,7 @@ def generate_fake_for_symbol(sym, seed):
     }
 
 def get_fake_stock_data(symbols, seed):
-    df = pd.DataFrame([generate_fake_for_symbol(s, seed) for s in symbols[:TOP_N]])
-    return df
+    return pd.DataFrame([generate_fake_for_symbol(s, seed) for s in symbols[:TOP_N]])
 
 # ===== CHIME FUNCTION =====
 def play_chime_html():
@@ -91,7 +85,7 @@ def play_chime_html():
     """, unsafe_allow_html=True)
 
 # ===== COPY-TO-CLIPBOARD JS =====
-COPY_JS = """
+st.markdown("""
 <script>
 function copySymbol(symbol, id){
     navigator.clipboard.writeText(symbol);
@@ -100,14 +94,13 @@ function copySymbol(symbol, id){
     setTimeout(()=>{indicator.style.display='none';}, 1000);
 }
 </script>
-"""
-st.markdown(COPY_JS, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # ===== MAIN DASHBOARD =====
 st.title("Day Trading Scanner - Watchlist UP10%")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s")
 
-# Toggle for chime
+# Toggle for chime alerts
 if 'alerts_enabled' not in st.session_state:
     st.session_state.alerts_enabled = False
 if st.button("🔔 Enable Watchlist Chimes"):
@@ -138,7 +131,7 @@ if st.session_state.alerts_enabled:
             break
 st.session_state.prev_watchlist_symbols = current_symbols
 
-# ===== WATCHLIST BOX =====
+# ===== WATCHLIST DISPLAY =====
 st.markdown('<div style="background-color:#1a1a1a; padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
 st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Top 5 UP10% Stocks</h4>', unsafe_allow_html=True)
 
@@ -157,7 +150,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display watchlist rows with image
+# Display rows
 for idx, row in watchlist_df.iterrows():
     color = change_pct_color(row['Change %'])
     diamond_html = diamond_display_image(row['💎 News Score'])
@@ -193,7 +186,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display top 20 main table with image
+# Display top 20 main table
 for idx, row in df_sorted.iterrows():
     color = change_pct_color(row['Change %'])
     bg_color = "#2a2a2a" if idx % 2 == 0 else "#1f1f1f"
