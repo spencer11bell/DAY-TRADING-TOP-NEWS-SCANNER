@@ -21,15 +21,24 @@ DEFAULT_SYMBOLS = [
 
 # ===== FIRE EMOJI LOGIC =====
 def fire_display_multi(score: int) -> str:
+    """Return fire emoji HTML with glow/shadow effect and size based on rating"""
     if score <= 0:
         return ""
     score = min(score,5)
-    # same color for all fires
-    color = "red"
-    # size based on score
-    size_map = {1:14, 2:16, 3:18, 4:22, 5:28}
+    size_map = {1:16, 2:18, 3:22, 4:26, 5:32}
     size = size_map.get(score,18)
-    return f'<span style="color:{color}; font-size:{size}px; font-weight:bold;">{"🔥"*score}</span>'
+    # Create a glowing, layered text-shadow effect for pop
+    shadow_intensity = score * 2
+    return f'''
+    <span style="
+        color: #ff3300;
+        font-size:{size}px;
+        font-weight:bold;
+        text-shadow: 0 0 {shadow_intensity}px #ff6600, 0 0 {shadow_intensity*2}px #ff9933, 0 0 {shadow_intensity*3}px #ffcc66;
+        ">
+        {"🔥"*score}
+    </span>
+    '''
 
 # ===== COLOR LOGIC =====
 def change_pct_color(change):
