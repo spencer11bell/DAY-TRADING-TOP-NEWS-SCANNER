@@ -5,7 +5,7 @@ import time
 from streamlit_autorefresh import st_autorefresh
 
 # ===== CONFIG =====
-st.set_page_config(page_title="🔥 Day Trading Scanner - Animated Fire", layout="wide")
+st.set_page_config(page_title="🔥 Day Trading Scanner - Animated Fire Bounce", layout="wide")
 
 PRICE_MIN = 2
 PRICE_MAX = 20
@@ -18,25 +18,30 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-# ===== FIRE EMOJI LOGIC MULTI-FIRE WITH ANIMATION =====
+# ===== FIRE EMOJI LOGIC MULTI-FIRE WITH BOUNCE =====
 def fire_display_multi(score: int) -> str:
-    """Returns multiple fire emojis depending on popularity score (1-5) with pulse animation"""
+    """Returns multiple fire emojis depending on popularity score (1-5) with glow/pulse/bounce"""
     if score <= 0:
         return ""
     score = min(score,5)
     color = "red" if score >=4 else "orange" if score>=2 else "yellow"
+    if score == 5:
+        animation = "big-bounce"
+    elif score == 4:
+        animation = "small-bounce"
+    else:
+        animation = "pulse"
     return f'''
-    <span style="
+    <span class="{animation}" style="
         color:{color};
         text-shadow: 0 0 {score*2}px {color};
-        animation: pulse 1.2s infinite alternate;
         font-size:18px;
         ">
         {'🔥'*score}
     </span>
     '''
 
-# CSS for pulse animation
+# ===== CSS ANIMATIONS =====
 st.markdown("""
 <style>
 @keyframes pulse {
@@ -44,6 +49,17 @@ st.markdown("""
   50% {transform: scale(1.2);}
   100% {transform: scale(1);}
 }
+@keyframes small-bounce {
+  0%, 100% {transform: translateY(0);}
+  50% {transform: translateY(-5px);}
+}
+@keyframes big-bounce {
+  0%, 100% {transform: translateY(0);}
+  50% {transform: translateY(-15px);}
+}
+.pulse { animation: pulse 1.2s infinite alternate; }
+.small-bounce { animation: small-bounce 0.8s infinite; }
+.big-bounce { animation: big-bounce 0.6s infinite; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -87,7 +103,7 @@ def get_fake_stock_data(symbols, seed):
     return df
 
 # ===== MAIN DASHBOARD =====
-st.title("🔥 Fixed Top 20 Day Trading Scanner - Animated Fire")
+st.title("🔥 Fixed Top 20 Day Trading Scanner - Fire Bounce")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s | Columns: Change %, Symbol, 🔥 News, Price, Volume, Float, Headline")
 
 with st.container():
