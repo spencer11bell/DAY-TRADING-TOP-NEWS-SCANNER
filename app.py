@@ -5,7 +5,7 @@ import time
 from streamlit_autorefresh import st_autorefresh
 
 # ===== CONFIG =====
-st.set_page_config(page_title="🔥 Day Trading Scanner - FIXED TOP 20", layout="wide")
+st.set_page_config(page_title="🔥 Day Trading Scanner - COLOR-CODED CHANGE %", layout="wide")
 
 PRICE_MIN = 2
 PRICE_MAX = 20
@@ -26,6 +26,15 @@ def fire_display_multi(score: int) -> str:
     score = min(score,5)
     color = "red" if score >=4 else "orange" if score>=2 else "yellow"
     return f'<span style="color:{color}; text-shadow: 0 0 {score*2}px {color};">{"🔥"*score}</span>'
+
+# ===== COLOR LOGIC FOR CHANGE % =====
+def change_pct_color(change):
+    if change > 5:
+        return "#00ff00"  # green
+    elif 1 <= change <= 4:
+        return "#ffff00"  # yellow
+    else:
+        return "#ff4d4d"  # red
 
 # ===== AUTO REFRESH =====
 count = st_autorefresh(interval=REFRESH_SECONDS*1000, limit=None, key="autorefresh")
@@ -60,7 +69,7 @@ def get_fake_stock_data(symbols, seed):
     return df
 
 # ===== MAIN DASHBOARD =====
-st.title("🔥 Fixed Top 20 Day Trading Scanner")
+st.title("🔥 Fixed Top 20 Day Trading Scanner - COLOR-CODED CHANGE %")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s | Columns: Change %, Symbol, 🔥 News, Price, Volume, Float, Headline")
 
 # Container for list to prevent blank page
@@ -89,11 +98,12 @@ with st.container():
 
     # Display each stock (top 20 fixed)
     for idx, row in df_sorted.iterrows():
+        color = change_pct_color(row['Change %'])
         st.markdown(
             f"""
             <div style="display:flex; flex-direction:row; align-items:center; background-color:#1f1f1f; border-radius:10px; padding:8px; margin-bottom:3px;">
                 <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
-                <div style="width:12%; font-weight:bold; color:{'#00ff00' if row['Change %']>=0 else '#ff4d4d'};">{row['Change %']}%</div>
+                <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
                 <div style="width:10%; font-weight:bold; color:#ffffff;">{row['Symbol']}</div>
                 <div style="width:15%; font-weight:bold;">{row['🔥 News']}</div>
                 <div style="width:10%; font-weight:bold; color:#00ffff;">${row['Price']}</div>
