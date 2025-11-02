@@ -5,7 +5,7 @@ import time
 from streamlit_autorefresh import st_autorefresh
 
 # ===== CONFIG =====
-st.set_page_config(page_title="🔥 Day Trading Scanner - Animated Fire Bounce", layout="wide")
+st.set_page_config(page_title="🔥 Day Trading Scanner - Top Movers Highlight", layout="wide")
 
 PRICE_MIN = 2
 PRICE_MAX = 20
@@ -18,28 +18,46 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-# ===== FIRE EMOJI LOGIC MULTI-FIRE WITH BOUNCE =====
-def fire_display_multi(score: int) -> str:
-    """Returns multiple fire emojis depending on popularity score (1-5) with glow/pulse/bounce"""
+# ===== FIRE EMOJI LOGIC MULTI-FIRE =====
+def fire_display_multi(score: int, is_top_mover=False) -> str:
+    """
+    Returns fire emojis based on popularity score (1-5)
+    Top movers: extra-large, bright, no animation
+    Others: pulse or bounce based on score
+    """
     if score <= 0:
         return ""
     score = min(score,5)
     color = "red" if score >=4 else "orange" if score>=2 else "yellow"
-    if score == 5:
-        animation = "big-bounce"
-    elif score == 4:
-        animation = "small-bounce"
-    else:
-        animation = "pulse"
-    return f'''
-    <span class="{animation}" style="
-        color:{color};
-        text-shadow: 0 0 {score*2}px {color};
-        font-size:18px;
+    if is_top_mover:
+        # Extra large, bright glow, no animation
+        return f'''
+        <span style="
+            color:{color};
+            text-shadow: 0 0 {score*5}px {color}, 0 0 {score*10}px {color};
+            font-size:28px;
+            font-weight:bold;
         ">
-        {'🔥'*score}
-    </span>
-    '''
+            {'🔥'*score}
+        </span>
+        '''
+    else:
+        # Animate based on score
+        if score == 5:
+            animation = "big-bounce"
+        elif score == 4:
+            animation = "small-bounce"
+        else:
+            animation = "pulse"
+        return f'''
+        <span class="{animation}" style="
+            color:{color};
+            text-shadow: 0 0 {score*2}px {color};
+            font-size:18px;
+        ">
+            {'🔥'*score}
+        </span>
+        '''
 
 # ===== CSS ANIMATIONS =====
 st.markdown("""
@@ -91,7 +109,7 @@ def generate_fake_for_symbol(sym, seed):
     return {
         "Change %": change_pct,
         "Symbol": sym,
-        "🔥 News": fire_display_multi(fire_score),
+        "🔥 News Score": fire_score,
         "Price": price,
         "Volume": volume,
         "Float": float_shares,
@@ -103,48 +121,45 @@ def get_fake_stock_data(symbols, seed):
     return df
 
 # ===== MAIN DASHBOARD =====
-st.title("🔥 Fixed Top 20 Day Trading Scanner - Fire Bounce")
+st.title("🔥 Fixed Top 20 Day Trading Scanner - Top Movers Highlight")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s | Columns: Change %, Symbol, 🔥 News, Price, Volume, Float, Headline")
 
 with st.container():
     df = get_fake_stock_data(DEFAULT_SYMBOLS, count)
+    # Sort by Change % descending
     df_sorted = df.sort_values(by="Change %", ascending=False).reset_index(drop=True)
 
     # Column headers
-    st.markdown(
-        """
-        <div style="display:flex; flex-direction:row; align-items:center; background-color:#2f2f2f; border-radius:10px; padding:8px; margin-bottom:2px;">
-            <div style="width:5%; font-weight:bold; color:#ffffff;">#</div>
-            <div style="width:12%; font-weight:bold; color:#00ffff;">Change %</div>
-            <div style="width:10%; font-weight:bold; color:#ffffff;">Symbol</div>
-            <div style="width:15%; font-weight:bold; color:#ff9900;">🔥 News</div>
-            <div style="width:10%; font-weight:bold; color:#00ffff;">Price</div>
-            <div style="width:12%; font-weight:bold; color:#ffcc00;">Volume</div>
-            <div style="width:12%; font-weight:bold; color:#ff99ff;">Float</div>
-            <div style="width:24%; font-weight:bold; color:#ffffff;">Headline</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown("""
+    <div style="display:flex; flex-direction:row; align-items:center; background-color:#2f2f2f; border-radius:10px; padding:8px; margin-bottom:2px;">
+        <div style="width:5%; font-weight:bold; color:#ffffff;">#</div>
+        <div style="width:12%; font-weight:bold; color:#00ffff;">Change %</div>
+        <div style="width:10%; font-weight:bold; color:#ffffff;">Symbol</div>
+        <div style="width:15%; font-weight:bold; color:#ff9900;">🔥 News</div>
+        <div style="width:10%; font-weight:bold; color:#00ffff;">Price</div>
+        <div style="width:12%; font-weight:bold; color:#ffcc00;">Volume</div>
+        <div style="width:12%; font-weight:bold; color:#ff99ff;">Float</div>
+        <div style="width:24%; font-weight:bold; color:#ffffff;">Headline</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Display each stock (alternating row colors)
     for idx, row in df_sorted.iterrows():
         color = change_pct_color(row['Change %'])
         bg_color = "#2a2a2a" if idx % 2 == 0 else "#1f1f1f"
-        st.markdown(
-            f"""
-            <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:10px; padding:8px; margin-bottom:3px;">
-                <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
-                <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
-                <div style="width:10%; font-weight:bold; color:#ffffff;">{row['Symbol']}</div>
-                <div style="width:15%; font-weight:bold;">{row['🔥 News']}</div>
-                <div style="width:10%; font-weight:bold; color:#00ffff;">${row['Price']}</div>
-                <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
-                <div style="width:12%; font-weight:bold; color:#ff99ff;">{row['Float']}</div>
-                <div style="width:24%; font-weight:bold; color:#ffffff;">{row['Headline']}</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        is_top_mover = idx < 3  # top 3 movers
+        fire_emoji_html = fire_display_multi(row['🔥 News Score'], is_top_mover=is_top_mover)
+        st.markdown(f"""
+        <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:10px; padding:8px; margin-bottom:3px;">
+            <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
+            <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
+            <div style="width:10%; font-weight:bold; color:#ffffff;">{row['Symbol']}</div>
+            <div style="width:15%; font-weight:bold;">{fire_emoji_html}</div>
+            <div style="width:10%; font-weight:bold; color:#00ffff;">${row['Price']}</div>
+            <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
+            <div style="width:12%; font-weight:bold; color:#ff99ff;">{row['Float']}</div>
+            <div style="width:24%; font-weight:bold; color:#ffffff;">{row['Headline']}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 st.caption(f"🔄 Last updated: {time.strftime('%H:%M:%S')} | Iteration: {count}")
