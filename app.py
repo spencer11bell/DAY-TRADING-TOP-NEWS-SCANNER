@@ -60,11 +60,8 @@ def get_fake_stock_data(symbols, seed):
 # ===== COPY TO CLIPBOARD =====
 st.markdown("""
 <script>
-function copySymbol(symbol, id){
+function copySymbol(symbol){
     navigator.clipboard.writeText(symbol);
-    let indicator = document.getElementById(id);
-    indicator.style.display='inline';
-    setTimeout(()=>{indicator.style.display='none';}, 1000);
 }
 </script>
 """, unsafe_allow_html=True)
@@ -146,6 +143,7 @@ h1 {
 .column-header {
     font-family: 'Exo 2', monospace;
     font-weight: 600;
+    background-color: #1a1a3a; /* slightly different shade for headers */
 }
 .row-hover {
     transition: all 0.3s ease-in-out;
@@ -184,15 +182,15 @@ st.markdown('<h1 style="color:#00ffff; text-shadow:0 0 6px #0ff,0 0 12px #0ff;">
 
 # ===== WATCHLIST HEADERS =====
 st.markdown("""
-<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; text-align:center; border-bottom:2px solid #00ffff;">
-    <div style="width:5%;">📈 UP10%</div>
-    <div style="width:5%;">#️⃣</div>
-    <div style="width:10%;">💠 SYMBOL</div>
-    <div style="width:10%;">💲 PRICE</div>
-    <div style="width:12%;">📊 VOLUME</div>
-    <div style="width:12%;">📦 FLOAT</div>
-    <div style="width:24%;">📰 NEWS</div>
-    <div style="width:15%;">⭐ NEWS SCORE</div>
+<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; text-align:center;">
+    <div class="column-header" style="width:5%;">📈 UP10%</div>
+    <div class="column-header" style="width:5%;">#️⃣</div>
+    <div class="column-header" style="width:10%;">💠 SYMBOL</div>
+    <div class="column-header" style="width:10%;">💲 PRICE</div>
+    <div class="column-header" style="width:12%;">📊 VOLUME</div>
+    <div class="column-header" style="width:12%;">📦 FLOAT</div>
+    <div class="column-header" style="width:24%;">📰 NEWS</div>
+    <div class="column-header" style="width:15%;">⭐ NEWS SCORE</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -205,7 +203,7 @@ for idx, row in watchlist_df.iterrows():
     <div class="row-hover" style="display:flex; flex-direction:row; align-items:center; justify-content:center; background:linear-gradient(145deg, #111133, #222266); border-radius:12px; padding:8px; margin-bottom:5px;">
         <div style="width:5%; text-align:center; color:#00ff00;">{up10}</div>
         <div style="width:5%; text-align:center; color:#ffffff;">{idx+1}</div>
-        <div style="width:10%; text-align:center; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']}<span id='{symbol_id}' style='color:#00ff00; display:none;'> COPIED</span></div>
+        <div style="width:10%; text-align:center; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}')">{row['Symbol']}</div>
         <div style="width:10%; text-align:center; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; text-align:center; color:#ffcc00;">{row['Volume']}</div>
         <div style="width:12%; text-align:center; color:#ff99ff;">{row['Float']}</div>
@@ -222,15 +220,15 @@ st.markdown('<h1 style="color:#ff9900; text-shadow:0 0 6px #f90,0 0 12px #f90;">
 
 # ===== SCANNER HEADERS =====
 st.markdown("""
-<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; text-align:center; border-bottom:2px solid #ff9900;">
-    <div style="width:5%;">📈 UP10%</div>
-    <div style="width:5%;">#️⃣</div>
-    <div style="width:10%;">💠 SYMBOL</div>
-    <div style="width:10%;">💲 PRICE</div>
-    <div style="width:12%;">📊 VOLUME</div>
-    <div style="width:12%;">📦 FLOAT</div>
-    <div style="width:24%;">📰 NEWS</div>
-    <div style="width:15%;">⭐ NEWS SCORE</div>
+<div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:6px; margin-bottom:4px; text-align:center;">
+    <div class="column-header" style="width:5%;">📈 UP10%</div>
+    <div class="column-header" style="width:5%;">#️⃣</div>
+    <div class="column-header" style="width:10%;">💠 SYMBOL</div>
+    <div class="column-header" style="width:10%;">💲 PRICE</div>
+    <div class="column-header" style="width:12%;">📊 VOLUME</div>
+    <div class="column-header" style="width:12%;">📦 FLOAT</div>
+    <div class="column-header" style="width:24%;">📰 NEWS</div>
+    <div class="column-header" style="width:15%;">⭐ NEWS SCORE</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -244,7 +242,7 @@ for idx, row in df_sorted.iterrows():
     <div class="row-hover" style="display:flex; flex-direction:row; align-items:center; justify-content:center; background:{bg_color}; border-radius:12px; padding:8px; margin-bottom:5px;">
         <div style="width:5%; text-align:center; color:#00ff00;">{up10}</div>
         <div style="width:5%; text-align:center; color:#ffffff;">{idx+1}</div>
-        <div style="width:10%; text-align:center; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}', '{symbol_id}')">{row['Symbol']}<span id='{symbol_id}' style='color:#00ff00; display:none;'> COPIED</span></div>
+        <div style="width:10%; text-align:center; color:#00ffff; cursor:pointer;" onclick="copySymbol('{row['Symbol']}')">{row['Symbol']}</div>
         <div style="width:10%; text-align:center; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; text-align:center; color:#ffcc00;">{row['Volume']}</div>
         <div style="width:12%; text-align:center; color:#ff99ff;">{row['Float']}</div>
