@@ -19,23 +19,23 @@ DEFAULT_SYMBOLS = [
     "QQQ","RRR","SSS","TTT"
 ]
 
-# ===== FIRE EMOJI LOGIC =====
+# ===== FIRE EMOJI HYPER-REALISTIC LOGIC =====
 def fire_display(score: int) -> str:
-    """Return professional glowing fire emoji, size based on score"""
+    """Return premium hyper-realistic fire emoji using emoji + glow + text-shadow + gradient"""
     if score <= 0:
         return ""
     score = min(score,5)
-    size_map = {1:16, 2:20, 3:24, 4:28, 5:34}
+    size_map = {1:18, 2:22, 3:26, 4:32, 5:40}
     size = size_map[score]
-    # glowing layered text-shadow effect
     return f'''
     <span style="
-        color:#ff3300;
         font-size:{size}px;
         font-weight:bold;
-        text-shadow: 0 0 {score*2}px #ff6600,
-                     0 0 {score*4}px #ff9933,
-                     0 0 {score*6}px #ffcc66;
+        color:#ff4500;
+        background: linear-gradient(45deg, #ff8c00, #ff4500, #ff6347);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 {score*3}px #ff7f50, 0 0 {score*5}px #ff6347, 0 0 {score*7}px #ff4500;
         ">
         {"🔥"*score}
     </span>
@@ -100,7 +100,6 @@ function copySymbol(symbol, id){
 }
 </script>
 """
-
 st.markdown(COPY_JS, unsafe_allow_html=True)
 
 # ===== MAIN DASHBOARD =====
@@ -157,11 +156,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display watchlist rows with clickable symbols
+# Display watchlist rows with clickable symbols and exact % in UP10%
 for idx, row in watchlist_df.iterrows():
     color = change_pct_color(row['Change %'])
     fire_html = fire_display(row['🔥 News Score'])
-    up10 = "🔺" if row['Change %']>=10 else ""
+    up10 = f"🔺 {row['Change %']}%" if row['Change %']>=10 else ""
     symbol_id = f"symbol-{idx}"
     st.markdown(f"""
     <div style="display:flex; flex-direction:row; align-items:center; background-color:#2a2a2a; border-radius:8px; padding:6px; margin-bottom:3px;">
@@ -193,12 +192,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Display top 20 main table with clickable symbols
+# Display top 20 main table with clickable symbols and exact % in UP10%
 for idx, row in df_sorted.iterrows():
     color = change_pct_color(row['Change %'])
     bg_color = "#2a2a2a" if idx%2==0 else "#1f1f1f"
     fire_html = fire_display(row['🔥 News Score'])
-    up10 = "🔺" if row['Change %']>=10 else ""
+    up10 = f"🔺 {row['Change %']}%" if row['Change %']>=10 else ""
     symbol_id = f"symbol-main-{idx}"
     st.markdown(f"""
     <div style="display:flex; flex-direction:row; align-items:center; background-color:{bg_color}; border-radius:10px; padding:8px; margin-bottom:3px;">
