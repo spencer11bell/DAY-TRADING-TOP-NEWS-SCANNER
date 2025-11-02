@@ -3,6 +3,8 @@ import pandas as pd
 import random
 import time
 from streamlit_autorefresh import st_autorefresh
+from io import BytesIO
+import base64
 
 # ===== CONFIG =====
 st.set_page_config(page_title="🔥 Day Trading Scanner - Watchlist UP10%", layout="wide")
@@ -103,15 +105,26 @@ def get_fake_stock_data(symbols, seed):
     df = pd.DataFrame([generate_fake_for_symbol(s, seed) for s in symbols[:TOP_N]])
     return df
 
+# ===== SOUND FUNCTION =====
+def play_chime():
+    chime_url = "https://actions.google.com/sounds/v1/cash/coin_tap.ogg"
+    st.audio(chime_url)
+
 # ===== MAIN DASHBOARD =====
 st.title("🔥 Day Trading Scanner - Watchlist UP10%")
 st.caption(f"Auto-refresh every {REFRESH_SECONDS}s")
+
+# Toggle for chime
+chime_toggle = st.checkbox("🔔 Play chime for new watchlist entries", value=False)
 
 # Generate Data
 df = get_fake_stock_data(DEFAULT_SYMBOLS, count)
 df_sorted = df.sort_values(by="Change %", ascending=False).reset_index(drop=True)
 
-# ===== WATCHLIST BOX =====
+# ===== WATCHLIST LOGIC =====
+if 'prev_watchlist_symbols' not in st.session_state:
+    st.session_state.prev_watchlist_symbols = []
+
 watchlist_df = df[
     (df['Change %']>=10) &
     (df['Price'].between(PRICE_MIN,PRICE_MAX)) &
@@ -120,30 +133,52 @@ watchlist_df = df[
     (df['Float']<FLOAT_MAX)
 ].sort_values(by="🔥 News Score", ascending=False).head(WATCHLIST_TOP_N)
 
+# Play chime if new stock enters watchlist
+current_symbols = watchlist_df['Symbol'].tolist()
+if chime_toggle:
+    for sym in current_symbols:
+        if sym not in st.session_state.prev_watchlist_symbols:
+            play_chime()
+            break
+st.session_state.prev_watchlist_symbols = current_symbols
+
+# ===== WATCHLIST BOX =====
 st.markdown('<div style="background-color:#1a1a1a; padding:12px; border-radius:12px; margin-bottom:12px;">', unsafe_allow_html=True)
 st.markdown('<h4 style="color:#00ffff;">📋 Watchlist - Top 5 UP10% Stocks Meeting Criteria</h4>', unsafe_allow_html=True)
 
-# Column headers for watchlist
+# Column headers
 st.markdown("""
 <div style="display:flex; flex-direction:row; font-weight:bold; color:#ffffff; padding:4px; margin-bottom:2px;">
-    <div style="width:15%;">Symbol</div>
-    <div style="width:15%;">Price</div>
-    <div style="width:50%;">Headline</div>
-    <div style="width:20%;">🔥 News</div>
+    <div style="width:5%;">UP10%</div>
+    <div style="width:5%;">#</div>
+    <div style="width:12%;">Change %</div>
+    <div style="width:10%;">Symbol</div>
+    <div style="width:15%;">🔥 News</div>
+    <div style="width:10%;">Price</div>
+    <div style="width:12%;">Volume</div>
+    <div style="width:12%;">Float</div>
+    <div style="width:24%;">Headline</div>
 </div>
 """, unsafe_allow_html=True)
 
-# Display each stock in watchlist with colored text
+# Display watchlist rows
 for idx, row in watchlist_df.iterrows():
+    color = change_pct_color(row['Change %'])
     fire_html = fire_display_multi(row['🔥 News Score'])
-    st.markdown(f'''
-    <div style="display:flex; flex-direction:row; justify-content:space-between; padding:4px; margin-bottom:2px; background-color:#2a2a2a; border-radius:5px;">
-        <div style="width:15%; font-weight:bold; color:#00ffff;">{row['Symbol']}</div>
-        <div style="width:15%; color:#00ff00;">${row['Price']}</div>
-        <div style="width:50%; color:#ffffff;">{row['Headline']}</div>
-        <div style="width:20%;">{fire_html}</div>
+    up10 = "🔺" if row['Change %']>=10 else ""
+    st.markdown(f"""
+    <div style="display:flex; flex-direction:row; align-items:center; background-color:#2a2a2a; border-radius:8px; padding:6px; margin-bottom:3px;">
+        <div style="width:5%; font-weight:bold; color:#00ff00;">{up10}</div>
+        <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
+        <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
+        <div style="width:10%; font-weight:bold; color:#00ffff;">{row['Symbol']}</div>
+        <div style="width:15%; font-weight:bold;">{fire_html}</div>
+        <div style="width:10%; font-weight:bold; color:#00ff00;">${row['Price']}</div>
+        <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
+        <div style="width:12%; font-weight:bold; color:#ff99ff;">{row['Float']}</div>
+        <div style="width:24%; font-weight:bold; color:#ffffff;">{row['Headline']}</div>
     </div>
-    ''', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # ===== COLUMN HEADERS FOR MAIN TABLE =====
@@ -173,9 +208,9 @@ for idx, row in df_sorted.iterrows():
         <div style="width:5%; font-weight:bold; color:#00ff00;">{up10}</div>
         <div style="width:5%; font-weight:bold; color:#ffffff;">{idx+1}</div>
         <div style="width:12%; font-weight:bold; color:{color};">{row['Change %']}%</div>
-        <div style="width:10%; font-weight:bold; color:#ffffff;">{row['Symbol']}</div>
+        <div style="width:10%; font-weight:bold; color:#00ffff;">{row['Symbol']}</div>
         <div style="width:15%; font-weight:bold;">{fire_html}</div>
-        <div style="width:10%; font-weight:bold; color:#00ffff;">${row['Price']}</div>
+        <div style="width:10%; font-weight:bold; color:#00ff00;">${row['Price']}</div>
         <div style="width:12%; font-weight:bold; color:#ffcc00;">{row['Volume']}</div>
         <div style="width:12%; font-weight:bold; color:#ff99ff;">{row['Float']}</div>
         <div style="width:24%; font-weight:bold; color:#ffffff;">{row['Headline']}</div>
