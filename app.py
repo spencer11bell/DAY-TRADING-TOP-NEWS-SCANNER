@@ -65,10 +65,6 @@ if 'alerts_enabled' not in st.session_state:
     st.session_state.alerts_enabled = True
 st.sidebar.checkbox("🔔 Enable Watchlist Chimes", value=st.session_state.alerts_enabled, key="alerts_enabled")
 
-# ===== DATA GENERATION =====
-df = get_fake_stock_data(DEFAULT_SYMBOLS, count)
-df_sorted = df.sort_values(by="UP10%", ascending=False).reset_index(drop=True)
-
 # ===== WATCHLIST LOGIC =====
 watchlist_df = df[
     (df['UP10%'] >= 10) &
