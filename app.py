@@ -30,33 +30,6 @@ def star_display(score: int) -> str:
 # ===== AUTO REFRESH =====
 count = st_autorefresh(interval=REFRESH_SECONDS*1000, limit=None, key="autorefresh")
 
-# ===== FAKE DATA GENERATOR =====
-random.seed(42)
-def generate_fake_for_symbol(sym, seed):
-    r = random.Random(f"{sym}-{seed}")
-    price = round(r.uniform(PRICE_MIN, PRICE_MAX), 2)
-    prev_close = round(price / (1 + r.uniform(-0.15,0.15)),2)
-    change_pct = round((price - prev_close)/prev_close*100,2) if prev_close!=0 else 0
-    avg_vol = int(r.uniform(10000,5000000))
-    volume = int(avg_vol * r.uniform(1,15))
-    float_shares = int(r.uniform(500_000,FLOAT_MAX))
-    news_score = r.randint(1,5)
-    headline_prefix = "BREAKING: " if r.random()<0.25 else ""
-    headline = f"{headline_prefix}{sym} {r.choice(['announces','reports','launches','files'])} {r.choice(['earnings','partnership','product'])}"
-    return {
-        "UP10%": change_pct,
-        "Symbol": sym,
-        "Price": price,
-        "Volume": volume,
-        "AvgVol": avg_vol,
-        "Float": float_shares,
-        "Headline": headline,
-        "News Score": news_score
-    }
-
-def get_fake_stock_data(symbols, seed):
-    return pd.DataFrame([generate_fake_for_symbol(s, seed) for s in symbols[:TOP_N]])
-
 # ===== COPY TO CLIPBOARD =====
 st.markdown("""
 <script>
